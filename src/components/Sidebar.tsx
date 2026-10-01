@@ -14,7 +14,7 @@ export const Sidebar = memo(function Sidebar({ state, actions }: { state: Patter
   return (
     <div className="pb-6">
       <Section title="Pattern type">
-        <CategoryGrid value={s.category} onChange={actions.selectCategory} />
+        <CategoryGrid value={s.category} onChange={actions.selectCategory} none={state.showMotifs === false} onNone={() => actions.setShowMotifs(false)} />
       </Section>
       <Section title={state.geo?.enabled ? `Geometric base · ${state.geo.style}` : 'Geometric base'}>
         <GeoPanel state={state} actions={actions} />

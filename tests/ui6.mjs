@@ -1,0 +1,18 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: process.env.CHROME, args: ['--no-sandbox'] });
+const page = await (await b.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+const errs = []; page.on('pageerror', (e) => errs.push(e.message));
+await page.goto('http://localhost:5179/');
+await page.getByRole('button', { name: 'Start Creating' }).click();
+await page.getByRole('button', { name: 'Presets' }).first().click();
+await page.getByRole('button', { name: 'Use preset Aztec Mesa' }).click();
+await page.waitForTimeout(500);
+const none = page.getByRole('radiogroup', { name: 'Pattern type' }).getByRole('radio', { name: 'None' });
+console.log('none checked (geo preset):', await none.getAttribute('aria-checked'));
+await page.getByRole('radio', { name: 'Tribal' }).click(); await page.waitForTimeout(400);
+console.log('after Tribal:', await none.getAttribute('aria-checked'));
+await page.screenshot({ path: '/tmp/u6-1.png' });
+await none.click(); await page.waitForTimeout(400);
+console.log('after None:', await none.getAttribute('aria-checked'), 'motif toggle:', await page.getByRole('switch', { name: 'Show motifs on top' }).getAttribute('aria-checked'));
+await page.screenshot({ path: '/tmp/u6-2.png' });
+console.log(errs.join('\n') || 'no errors'); await b.close(); process.exit(0);

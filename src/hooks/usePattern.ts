@@ -91,7 +91,7 @@ export function usePattern(initial: () => PatternState) {
 
     selectCategory: (id: GenerationSettings['category']) => set((s) => {
       const cat = CATEGORY_MAP[id];
-      return withSettings({ ...s, presetId: null }, { category: id, motifs: [...cat.motifs], motifColors: undefined, colorMode: 'mixed', ...(id === 'chintz' ? { layout: 'vine' as const } : {}) });
+      return withSettings({ ...s, presetId: null, showMotifs: true }, { category: id, motifs: [...cat.motifs], motifColors: undefined, colorMode: 'mixed', ...(id === 'chintz' ? { layout: 'vine' as const } : {}) });
     }),
 
     toggleMotif: (type: string) => set((s) => {
