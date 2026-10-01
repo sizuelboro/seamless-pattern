@@ -12,6 +12,7 @@
 import type { GeoSettings, GeoStyle, GeoAccent } from '../types/pattern';
 import { mod } from './random';
 import { dd, runs, type Lit } from './pixelGrid';
+import { fern, gourdChain, hill, rosette, type Key } from './agorPatterns';
 import { fishbone, paisley, starFlower, sunburst } from './aronaiShapes';
 
 export interface GeoOp { d: string; fill?: string; stroke?: string; sw?: number; alpha?: number; rule?: 'evenodd' }
@@ -47,8 +48,13 @@ export const GEO_STYLES: GeoStyleMeta[] = [
   { id: 'bands', name: 'Ethnic bands', hint: 'Temple, diamond and check borders', roles: [[0, 'Base'], [1, 'Bands'], [2, 'Temples'], [3, 'Diamonds']], rotate: 'transpose', defaults: { repeat: 6, aspect: 1.2, weight: 60 } },
   { id: 'aztec', name: 'Aztec', hint: 'Tribal medallions with arrow and sawtooth borders', roles: [[0, 'Base'], [1, 'Main'], [2, 'Arrows'], [3, 'Accent']], rotate: 'transpose', defaults: { repeat: 4, aspect: 1.7, weight: 70 } },
   { id: 'agor', name: 'Bodo Agor', hint: 'Dokhona border: stripes, zigzags and a pigeon-eye diamond on a counted thread grid', roles: [[0, 'Base'], [1, 'Border'], [2, 'Zigzag'], [3, 'Eye'], [4, 'Field buti']], outline: 'Field buti', rotate: 'transpose', defaults: { repeat: 6, aspect: 1.8, weight: 60, outline: true } },
-  { id: 'aronai', name: 'Bodo Aronai', hint: 'Aronai panel: fishbone teeth, flower-diamond chain, sunburst medallions with paisleys', roles: [[0, 'Base'], [1, 'Teeth & medallion'], [2, 'Lines'], [3, 'Flowers'], [4, 'Paisleys & leaves']], outline: 'Paisleys', rotate: 'transpose', defaults: { repeat: 2, aspect: 1.1, weight: 60, outline: true } },
-  { id: 'aronaiweave', name: 'Aronai Weave', hint: 'Woven aronai: serrated net teeth and a chain of rosette diamonds', roles: [[0, 'Base'], [1, 'Teeth'], [2, 'Lines'], [3, 'Diamond chain'], [4, 'Rosettes']], outline: 'Rosettes', rotate: 'transpose', defaults: { repeat: 2, aspect: 1, weight: 60, outline: true } },
+  { id: 'aronai', name: 'Bodo Aronai', hint: 'Aronai panel: fishbone teeth, flower-diamond chain, sunburst medallions with paisleys', roles: [[0, 'Base'], [1, 'Hajw teeth & medallion'], [2, 'Lines'], [3, 'Flowers'], [4, 'Paisleys & leaves']], outline: 'Paisleys', rotate: 'transpose', defaults: { repeat: 2, aspect: 1.1, weight: 60, outline: true } },
+  { id: 'aronaiweave', name: 'Aronai Weave', hint: 'Woven aronai: serrated net teeth and a chain of rosette diamonds', roles: [[0, 'Base'], [1, 'Hajw teeth'], [2, 'Lines'], [3, 'Diamond chain'], [4, 'Rosettes']], outline: 'Rosettes', rotate: 'transpose', defaults: { repeat: 2, aspect: 1, weight: 60, outline: true } },
+  { id: 'gubwi', name: 'Agor Gubwi', hint: 'Dokhona stripes: orange bands, green zigzags round a purple dash row, dotted lines', roles: [[0, 'Base'], [1, 'Bands'], [2, 'Zigzag'], [3, 'Dashes'], [4, 'Dots']], outline: 'Zigzag bands', rotate: 'transpose', defaults: { repeat: 8, aspect: 2.5, weight: 60, outline: true } },
+  { id: 'makhri', name: 'Makhri Agor', hint: 'Spider agor: bands of linked floral diamonds, one colour per band', roles: [[0, 'Base'], [1, 'Colour A'], [2, 'Colour B'], [3, 'Colour C'], [4, 'Dots & centres']], rotate: 'transpose', defaults: { repeat: 16, aspect: 4.8, weight: 60 } },
+  { id: 'hajw', name: 'Hajw Agor', hint: 'Jwmbaigra border: herringbone hills, eye medallions and field butis', roles: [[0, 'Base'], [1, 'Hills'], [2, 'Lines'], [3, 'Medallions'], [4, 'Butis']], outline: 'Field butis', rotate: 'transpose', defaults: { repeat: 10, aspect: 4.8, weight: 60, outline: true } },
+  { id: 'dingkhia', name: 'Dingkhia Bijou', hint: 'Jwmbaigra: round rosette band, fern fronds and rosettes in the field', roles: [[0, 'Base'], [1, 'Rosettes'], [2, 'Lines'], [3, 'Ferns'], [4, 'Centres']], outline: 'Field rosettes', rotate: 'transpose', defaults: { repeat: 6, aspect: 4.33, weight: 60, outline: true } },
+  { id: 'khangkri', name: 'Khangkrikhola', hint: 'Teasel-gourd flower chains between dash and dot rows', roles: [[0, 'Base'], [1, 'Chains'], [2, 'Dashes'], [3, 'Diamonds'], [4, 'Dots']], rotate: 'transpose', defaults: { repeat: 6, aspect: 0.75, weight: 60 } },
   { id: 'wave', name: 'Waves', hint: 'Wavy ribbons', roles: [[0, 'Base'], [1, 'Wave'], [2, 'Pinline']], outline: 'Pinline', rotate: 'transpose', defaults: { repeat: 4, aspect: 0.5, weight: 45 } },
 ];
 export const GEO_MAP = Object.fromEntries(GEO_STYLES.map((s) => [s.id, s])) as Record<GeoStyle, GeoStyleMeta>;
@@ -77,7 +83,7 @@ export function geoGrid(g: GeoSettings, W: number, H: number) {
   const BW = mode === 'transpose' ? H : W, BH = mode === 'transpose' ? W : H;
   const cols = clamp(Math.round(g.repeat), 1, 64);
   const cw = BW / cols;
-  const rows = clamp(Math.round(BH / (cw * clamp(g.aspect, 0.2, 5))), 1, 128);
+  const rows = clamp(Math.round(BH / (cw * clamp(g.aspect, 0.2, 8))), 1, 128);
   return { mode, BW, BH, cols, rows, cw, ch: BH / rows };
 }
 
@@ -592,6 +598,103 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
       fill(B['#'], 1); fill(B['+'], 2); fill(B.o, 3); fill(B['*'], 4);
       break;
     }
+    case 'gubwi': case 'makhri': case 'hajw': case 'dingkhia': case 'khangkri': {
+      // Woven dokhona / jwmbaigra layouts on a counted thread grid (G threads × R rows per cell).
+      const A = Math.abs, heavy = wt > 0.4;
+      let G = 16, R = 48, lit: Lit = () => null;
+      if (g.style === 'gubwi') {
+        // Agor gubwi dokhona: wide orange bands, green zigzag bands round a purple dash row, dotted lines
+        G = 24; R = 60;
+        const zig = (x: number, r: number) => { const ph = x % 12, v = ph < 6 ? ph : 11 - ph; return Math.abs(v - r) <= 1; };
+        lit = (x, y) => {
+          if (y <= 5) return heavy || (y >= 1 && y <= 4) ? '#' : null;
+          if (y === 7 || y === 27) return x % 4 < 2 ? '*' : null;
+          if (y >= 10 && y <= 15) return g.outline ? (zig(x, y - 10) ? '+' : '*') : (y === 13 ? '+' : null);
+          if (y === 17 || y === 18) return x % 4 < 3 ? 'o' : null;
+          if (y >= 20 && y <= 25) return g.outline ? (zig(x, 25 - y) ? '+' : '*') : (y === 22 ? '+' : null);
+          if (y >= 29 && y <= 34) return heavy || (y >= 30 && y <= 33) ? '#' : null;
+          if (y === 36) return x % 2 === 0 ? '*' : null;
+          if (y === 45) return '+';
+          if (y === 47 || y === 48) return '#';
+          if (y === 50) return x % 3 === 0 ? 'o' : null;
+          return null;
+        };
+      } else if (g.style === 'makhri') {
+        // Makhri agor: bands of linked floral diamonds, each band in its own colour
+        G = 10; R = 48;
+        const ring: Key[] = ['o', '+', '#', '+'], fillK: Key[] = ['#', 'o', '+', '#'];
+        lit = (x, y) => {
+          const b = Math.floor(y / 12), r = y % 12;
+          if (r === 0) return x % 2 === 0 ? '*' : null;
+          if (r < 2 || r > 10) return null;
+          const dx = x - 5, dy = r - 6, d = A(dx) + A(dy);
+          if (d === 4) return ring[b];
+          if (d <= 1) return heavy ? '*' : fillK[b];
+          if (d === 2 && heavy) return fillK[b];
+          if (dy === 0 && A(dx) === 5) return ring[b];
+          if (dd(A(dx) - 5, A(dy) - 4) <= 1) return fillK[b];
+          return null;
+        };
+      } else if (g.style === 'hajw') {
+        // Hajw agor (jwmbaigra sadri): herringbone hills up, a band of eye medallions, hills down, field butis
+        G = 20; R = 96;
+        lit = (x, y) => {
+          const dx = x - 10;
+          if (y <= 23) return hill(dx, y, 24, 9);
+          if (y === 25 || y === 39) return '+';
+          if (y >= 27 && y <= 37) {
+            const dy = y - 32, e = Math.max(A(dx) / 8.5, A(dy) / 5, (A(dx) / 8.5 + A(dy) / 5) * 0.8);
+            if (e > 0.8 && e <= 1.01) return 'o';
+            const di = dd(dx, dy);
+            if (di === 0) return '*';
+            if (di === 2 || (A(dx) === 4 && dy === 0)) return 'o';
+            if (dd(A(dx) - 10, dy) <= 2) return '+';
+            return null;
+          }
+          if (y === 40) return x % 2 === 0 ? '+' : null;
+          if (y >= 42 && y <= 65) return hill(dx, 65 - y, 24, 9);
+          if (g.outline && y >= 74 && y <= 86 && (x === 9 || x === 11) && y % 2 === 0) return '*';
+          return null;
+        };
+      } else if (g.style === 'dingkhia') {
+        // Dingkhia bijou: rosette band, fern fronds under a line, rosettes scattered in the field
+        G = 24; R = 104;
+        const wrap = (v: number) => ((v + 36) % 24) - 12;
+        lit = (x, y) => {
+          if (y <= 22) return rosette(x - 12, y - 11, 11);
+          if (y === 24 || y === 26) return '+';
+          if (y === 25) return x % 2 === 0 ? '+' : null;
+          if (y >= 28 && y <= 41) { const f = fern(x < 12 ? x - 6 : x - 18, y - 28, 14, 4); return f ? 'o' : null; }
+          if (g.outline) {
+            if (y >= 55 && y <= 73) return rosette(x - 12, y - 64, 9);
+            if (y >= 81 && y <= 99 && heavy) return rosette(wrap(x), y - 90, 9);
+          }
+          return null;
+        };
+      } else {
+        // Khangkrikhola: teasel-gourd flower chains (crossing waves, barred lenses) between dash and dot rows
+        G = 36; R = 27;
+        lit = (x, y) => {
+          if (y <= 1) return x % 3 < 2 ? '+' : null;
+          if (y === 3 || y === 19 || y === 25) return x % 2 === 0 ? '*' : null;
+          if (y >= 5 && y <= 17) return gourdChain(x, y - 5, 36, 13);
+          if (y >= 21 && y <= 23) return heavy && dd(((x + 6) % 12) - 6, y - 22) <= 1 ? 'o' : null;
+          return null;
+        };
+      }
+      const ux = cw / G, uy = ch / R, bl = 0.04;
+      const map = runs(lit, 0, 0, G, R);
+      const B: Record<string, PathBuilder> = { '#': pb(), '+': pb(), o: pb(), '*': pb() };
+      each((x0, y0) => {
+        for (const [kk, list] of map) for (const [x, y, l] of list) {
+          const X0 = x0 + x * ux, Y0 = y0 + y * uy, w = l * ux + ux * bl, h = uy * (1 + bl);
+          if (X0 + offx > BW || X0 + w + offx < 0 || Y0 + offy > BH || Y0 + h + offy < 0) continue;
+          B[kk].rect(X0, Y0, w, h);
+        }
+      });
+      fill(B['#'], 1); fill(B['+'], 2); fill(B.o, 3); fill(B['*'], 4);
+      break;
+    }
     case 'aztec': {
       const mn = pb(), ar = pb(), ac = pb(), cut = pb();
       const k = 0.55 + wt * 0.45;
@@ -725,7 +828,7 @@ export function geoAnchors(g: GeoSettings, W: number, H: number): { pts: [number
   const at: Record<string, [number, number][]> = {
     ogee: g.outline ? [[0.5, 0]] : [[0, 0.5]], ikat: [[0, 0]], check: [[wt / 2, wt / 2]], stripes: [[wt + (1 - wt) / 2, 0.5]],
     pinstripe: [[wt / 2, 0.5]], gingham: [[wt + (1 - wt) / 2, wt + (1 - wt) / 2]], plaid: [[wt * 0.3, wt * 0.3]],
-    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], aztec: [[0, 0.5]], aronai: [[0.5, 0.5]], aronaiweave: [[0.5, 0.5]], agor: [[0.5, Math.min(0.95, (25 * Math.min(cw / 24, ch / 27) + (ch - 25 * Math.min(cw / 24, ch / 27)) / 2) / ch)]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
+    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], aztec: [[0, 0.5]], aronai: [[0.5, 0.5]], gubwi: [[0.5, 0.72]], makhri: [[0.5, 0.5]], hajw: [[0.5, 0.83]], dingkhia: [[0.5, 0.62]], khangkri: [[0.5, 0.82]], aronaiweave: [[0.5, 0.5]], agor: [[0.5, Math.min(0.95, (25 * Math.min(cw / 24, ch / 27) + (ch - 25 * Math.min(cw / 24, ch / 27)) / 2) / ch)]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
   };
   const fr = at[g.style] ?? [[0.5, 0.5]];
   const pts: [number, number][] = [];

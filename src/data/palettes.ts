@@ -30,6 +30,11 @@ export const PALETTES: PalettePreset[] = [
   { id: 'gamsa', name: 'Gamsa', colors: ['#FFFFFF', '#0F6B3A', '#C1121F', '#F2B705', '#1B1B1B'] },
   { id: 'aronaiorange', name: 'Aronai Orange', colors: ['#F07A12', '#0B5D2A', '#111111', '#C1121F', '#F2C230'] },
   { id: 'aronaiyellow', name: 'Aronai Yellow', colors: ['#F6E31A', '#D62012', '#E8590C', '#111111', '#FFFFFF'] },
+  { id: 'gubwi', name: 'Agor Gubwi', colors: ['#F2C21B', '#EE7A1A', '#2BA35A', '#5B3FA6', '#7FD3E6'] },
+  { id: 'makhri', name: 'Makhri', colors: ['#F39A1E', '#6A2C91', '#1E9E6A', '#C2262E', '#FFE08A'] },
+  { id: 'jwmbaigra', name: 'Jwmbaigra Blue', colors: ['#2B2FA8', '#E8C21A', '#D6204E', '#F06292', '#FFFFFF'] },
+  { id: 'dingkhia', name: 'Dingkhia Pink', colors: ['#D3195A', '#E9C23A', '#F4D35E', '#7A0C2E', '#FFFFFF'] },
+  { id: 'khangkri', name: 'Khangkrikhola', colors: ['#E9DDC8', '#1F3A4D', '#FFFFFF', '#8A9AA5', '#C9B79C'] },
   { id: 'bodogreen', name: 'Bodo Green', colors: ['#0F6B3A', '#F5C518', '#D62828', '#F7F3E8', '#1B1B1B'] },
   { id: 'halloween', name: 'Halloween', colors: ['#F28C28', '#7B4AA3', '#F6E7C1', '#1A1423', '#4E8A3E'] },
 ];

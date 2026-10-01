@@ -37,6 +37,14 @@ A seamless pattern generator built with React, TypeScript, Vite, Tailwind CSS an
     herringbone lines, sunburst medallions with paisleys and arrow-leaf stars) and a woven
     *Aronai Weave* style (serrated net-filled teeth and a chain of rosette diamonds); 3 motifs
     (sunburst, paisley, arrows), 2 palettes (Aronai Orange, Aronai Yellow) and 6 presets.
+  - **Agor library upgrade** (names and meanings from *An Introduction to the Bodo Agor*,
+    Narzary & Boro 2024, and Balipara Foundation textile notes; drawings are original):
+    12 new woven motifs — Dingkhia (fern), Gabsab (round flower), Khangkrikhola (teasel-gourd
+    flower), Makhri (spider), Sikhri (butterfly), Khaseo bikha (tortoise back), Jong (spearhead),
+    San (sun), Khamrenga (starfruit), Mauji apha (cat paw), Dao (bird), Thakhamala (chain of
+    coins); Hajw agor redrawn as a herringbone mountain. 5 woven base styles: **Agor Gubwi**
+    dokhona stripes, **Makhri** diamond bands, **Hajw** jwmbaigra hill border, **Dingkhia Bijou**
+    rosettes and ferns, **Khangkrikhola** chains; 5 palettes and 7 presets.
 - **Frames studio**: 12 parametric label shapes (Victorian, wavy, scallop, ticket, bracket,
   octagon, stepped, stamp, arch, rounded, oval, cloud) with double lines, offset shadow,
   ornaments and auto-fitting text; 7 page-border styles (checks, blocks, diamonds, dots,

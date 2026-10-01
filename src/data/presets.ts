@@ -269,6 +269,45 @@ PRESETS.push(
 const BD = (p: Omit<PresetDef, 'tag'>): PresetDef => ({ ...p, tag: 'bodo' });
 const DOKHONA = ['#F2B705', '#0F6B3A', '#C1121F', '#1B1B1B', '#FFF3D6'];
 const ARONAI = ['#B3121F', '#F2C230', '#0F5132', '#111111', '#FFFFFF'];
+PRESETS.push(
+  BD({
+    id: 'bd-agor-gubwi', name: 'Agor Gubwi Dokhona', description: 'The oldest dokhona agor: orange bands, green zigzags and purple dashes on yellow.',
+    palette: ['#F2C21B', '#EE7A1A', '#2BA35A', '#5B3FA6', '#7FD3E6'], background: solid('#F2C21B'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'gubwi', repeat: 8, aspect: 2.5, weight: 60, colors: [-1, 1, 2, 3, 4], outline: true },
+    texture: { type: 'linen', amount: 18 },
+  }),
+  BD({
+    id: 'bd-makhri', name: 'Makhri Dokhona', description: 'Spider agor — linked floral diamonds in purple, green and red bands on orange.',
+    palette: ['#F39A1E', '#6A2C91', '#1E9E6A', '#C2262E', '#FFE08A'], background: solid('#F39A1E'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'makhri', repeat: 16, aspect: 4.8, weight: 60, colors: [-1, 3, 2, 1, 4], outline: false },
+  }),
+  BD({
+    id: 'bd-hajw-jwmbaigra', name: 'Hajw Jwmbaigra', description: 'Gold herringbone hills and eye medallions on royal blue, red butis in the field.',
+    palette: ['#2B2FA8', '#E8C21A', '#D6204E', '#F06292', '#FFFFFF'], background: solid('#2B2FA8'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'hajw', repeat: 10, aspect: 4.8, weight: 60, colors: [-1, 1, 1, 1, 2], outline: true },
+  }),
+  BD({
+    id: 'bd-dingkhia-bijou', name: 'Dingkhia Bijou', description: 'Gold fern fronds and round rosettes on jwmbaigra pink.',
+    palette: ['#D3195A', '#E9C23A', '#F4D35E', '#7A0C2E', '#FFFFFF'], background: solid('#D3195A'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'dingkhia', repeat: 6, aspect: 4.33, weight: 30, colors: [-1, 1, 1, 1, 2], outline: true },
+  }),
+  BD({
+    id: 'bd-khangkrikhola', name: 'Khangkrikhola', description: 'Navy teasel-gourd flower chains on natural cotton.',
+    palette: ['#E9DDC8', '#1F3A4D', '#FFFFFF', '#8A9AA5', '#C9B79C'], background: solid('#E9DDC8'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'khangkri', repeat: 6, aspect: 0.75, weight: 60, colors: [-1, 1, 1, 2, 2] },
+    texture: { type: 'linen', amount: 35 },
+  }),
+  BD({
+    id: 'bd-agor-sampler', name: 'Agor Sampler', description: 'Fern, butterfly, tortoise back, spearhead and spider agors on dokhona yellow.',
+    palette: DOKHONA, background: solid('#F2B705'), showMotifs: true,
+    settings: { category: 'bodo', motifs: ['dingkhiaAgor', 'sikhriAgor', 'khaseoBikha', 'jongAgor', 'makhriAgor'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { dingkhiaAgor: [1, 2], sikhriAgor: [2, 1], khaseoBikha: [1, 2], jongAgor: [2, 1], makhriAgor: [3, 2] }, rotationMode: '0', density: 55, scale: 95, variation: 0, seed: 8131 },
+  }),
+  BD({
+    id: 'bd-dao-birds', name: 'Dao Agor Birds', description: 'Woven birds with starfruit and sun agors on pink.',
+    palette: ['#E0245E', '#3B2FC9', '#F2C230', '#FFFFFF', '#1B1B1B'], background: solid('#E0245E'), showMotifs: true,
+    settings: { category: 'bodo', motifs: ['daoAgor', 'khamrenga', 'sanAgor'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { daoAgor: [1, 2], khamrenga: [3, 2], sanAgor: [2, 1] }, rotationMode: '0', density: 50, scale: 90, variation: 0, seed: 8132 },
+  }),
+);
 const AR_ORANGE = ['#F07A12', '#0B5D2A', '#111111', '#C1121F', '#F2C230'];
 const AR_YELLOW = ['#F6E31A', '#D62012', '#E8590C', '#111111', '#FFFFFF'];
 PRESETS.push(

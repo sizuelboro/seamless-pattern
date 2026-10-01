@@ -5,6 +5,7 @@
  */
 import type { ColorRole, MotifDef, MotifPart } from './motifs';
 import { dd, runs, runsPath, type Lit } from '../engine/pixelGrid';
+import { bird, butterfly, catPaw, coin, fern, gourdChain, hill, rosette, spear, spider, starfruit, sun, tortoise } from '../engine/agorPatterns';
 import { fishbone, paisley, polyD, starFlower, sunburst } from '../engine/aronaiShapes';
 
 const ROLE: Record<string, ColorRole> = { '#': 'main', '+': 'accent', o: 'alt', '*': 'light' };
@@ -28,15 +29,8 @@ export const BODO_MOTIFS: MotifDef[] = [
     if (d === 0) return '*';
     return null;
   }),
-  // Hajw agor — hills: a big stepped peak over a row of small peaks
-  woven('hajwAgor', 'Hajw agor (hills)', 17, (x, y) => {
-    const ty = y + 8; // 0..16 from the top
-    if (ty <= 8 && Math.abs(x) <= ty && Math.abs(x) >= ty - 1) return '#';
-    if (ty <= 8 && ty >= 4 && Math.abs(x) <= ty - 4) return '+';
-    if (ty === 10) return '#';
-    if (ty >= 12) { const px = ((x + 8) % 6 + 6) % 6 - 2.5; if (Math.abs(px) <= ty - 12.5) return 'o'; }
-    return null;
-  }),
+  // Hajw agor — mountain: a tall hill filled with herringbone, on a ground line
+  woven('hajwAgor', 'Hajw agor (mountain)', 17, (x, y) => (y + 8 <= 14 ? hill(x, y + 8, 15, 8) : y + 8 === 16 ? '+' : null)),
   // Bwigri bibar — plum blossom: four diamond petals round a centre
   woven('bwigriBibar', 'Bwigri bibar (plum flower)', 17, (x, y) => {
     for (const [cx, cy] of [[0, -5], [0, 5], [-5, 0], [5, 0]]) { const d = dd(x - cx, y - cy); if (d <= 3) return d === 0 ? '*' : '#'; }
@@ -56,7 +50,7 @@ export const BODO_MOTIFS: MotifDef[] = [
     return null;
   }),
   // Thaigir — star/flower of eight points
-  woven('agorStar', 'Agor star', 15, (x, y) => {
+  woven('agorStar', 'Singri bibar (8-point star)', 15, (x, y) => {
     const d = dd(x, y), ax = Math.abs(x), ay = Math.abs(y);
     if (d <= 1) return '*';
     if (d <= 3) return '+';
@@ -91,4 +85,20 @@ export const BODO_MOTIFS: MotifDef[] = [
     { d: polyD([...fishbone(3, 36, 50, 20, 5, 0.55), ...fishbone(97, 64, 50, 20, 5, 0.55)]), fill: 'main' },
     { d: polyD(starFlower(50, 50, 13, 8, 2.6, 0.34)), fill: 'accent' },
   ] },
+  // From the agor categories: natural objects, animals, flowers and man-made objects
+  woven('dingkhiaAgor', 'Dingkhia agor (fern)', 17, (x, y) => fern(x, y + 8, 17, 6)),
+  woven('gabsabAgor', 'Gabsab agor (round flower)', 23, (x, y) => rosette(x, y, 11)),
+  woven('khangkrikhola', 'Khangkrikhola (teasel-gourd flower)', 21, (x, y) => (Math.abs(y) <= 5 ? gourdChain(x + 15, y + 5, 20, 11) : null)),
+  woven('makhriAgor', 'Makhri agor (spider)', 17, spider),
+  woven('sikhriAgor', 'Sikhri agor (butterfly)', 15, butterfly),
+  woven('khaseoBikha', 'Khaseo bikha (tortoise back)', 17, (x, y) => tortoise(x, y, 8)),
+  woven('jongAgor', 'Jong agor (spearhead)', 17, (x, y) => spear(x, y, 8)),
+  woven('sanAgor', 'San agor (sun)', 17, (x, y) => sun(x, y, 8)),
+  woven('khamrenga', 'Khamrenga (starfruit)', 15, (x, y) => starfruit(x, y, 7)),
+  woven('maujiApha', 'Mauji apha (cat paw)', 13, catPaw),
+  woven('daoAgor', 'Dao agor (bird)', 17, bird),
+  woven('thakhamala', 'Thakhamala (chain of coins)', 21, (x, y) => {
+    for (const cx of [-7, 0, 7]) { const k = coin(x - cx, y, 3); if (k) return k; }
+    return y === 0 ? '+' : null;
+  }),
 ];

@@ -97,7 +97,7 @@ export const GeoPanel = memo(function GeoPanel({ state, actions }: { state: Patt
 
       <Slider label="Repeats across" value={g.repeat} min={1} max={32} onChange={(v) => set({ repeat: v }, 'geo-repeat')}
         format={(v) => `${v} × ${grid.rows}`} hint="Whole cells per tile — keeps the layer seamless" />
-      <Slider label="Cell ratio" value={g.aspect} min={0.25} max={4} step={0.05} onChange={(v) => set({ aspect: v }, 'geo-aspect')}
+      <Slider label="Cell ratio" value={g.aspect} min={0.25} max={6} step={0.05} onChange={(v) => set({ aspect: v }, 'geo-aspect')}
         format={(v) => `1 : ${v.toFixed(2)}`} hint="Stretch cells taller or wider" />
       <Slider label="Weight" value={g.weight} min={5} max={100} onChange={(v) => set({ weight: v }, 'geo-weight')} format={(v) => `${v}%`} hint="Band width / shape size" />
 

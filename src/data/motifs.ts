@@ -421,7 +421,7 @@ export const MOTIF_GROUPS: { id: string; label: string; motifs: string[] }[] = [
   { id: 'boho', label: 'Boho', motifs: ['arch', 'bohoSun', 'cactus', 'feather', 'blob', 'rainbow'] },
   { id: 'ornamental', label: 'Ornamental', motifs: ['eightStar', 'quatrefoil', 'rosette', 'lattice', 'paisley', 'lotus', 'mandala', 'scandiFlower'] },
   { id: 'chintz', label: 'Chintz & damask', motifs: ['chintzFan', 'chintzPeony', 'chintzRosette', 'pomegranate', 'carnation', 'chintzLeaf', 'curlLeaf', 'berrySprig', 'chintzBud', 'fernSprig', 'damaskPaisley', 'damaskLotus'] },
-  { id: 'bodo', label: 'Bodo Agor', motifs: ['pharwoMegon', 'hajwAgor', 'bwigriBibar', 'daoraiAgor', 'agorStar', 'agorButi', 'agorChain', 'aronaiSun', 'aronaiPaisley', 'aronaiArrow'] },
+  { id: 'bodo', label: 'Bodo Agor', motifs: ['pharwoMegon', 'hajwAgor', 'bwigriBibar', 'daoraiAgor', 'agorStar', 'agorButi', 'agorChain', 'aronaiSun', 'aronaiPaisley', 'aronaiArrow', 'dingkhiaAgor', 'gabsabAgor', 'khangkrikhola', 'makhriAgor', 'sikhriAgor', 'khaseoBikha', 'jongAgor', 'sanAgor', 'khamrenga', 'maujiApha', 'daoAgor', 'thakhamala'] },
   { id: 'tribal', label: 'Tribal', motifs: ['aztecDiamond', 'aztecArrow', 'aztecCross'] },
   { id: 'indian', label: 'Indian', motifs: ['buta', 'kairi', 'mughalFlower', 'lotusBloom', 'lotusTop', 'marigold', 'rangoli', 'mihrab', 'royalElephant', 'peacock', 'parrot', 'diya', 'kalash', 'ajrakhStar', 'kolam', 'bandhani', 'templeBell', 'paisley', 'lotus', 'mandala'] },
   { id: 'retro', label: 'Retro & hand-drawn', motifs: ['starburst', 'flowerPower', 'sparkle', 'squiggle', 'scribble', 'triDots', 'brush'] },
