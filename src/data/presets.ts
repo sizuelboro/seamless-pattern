@@ -1,6 +1,6 @@
 import { generatePattern } from '../engine/patternGenerator';
 import type { Background, GenerationSettings, GeoSettings, PatternState } from '../types/pattern';
-import { DEFAULT_GEO } from '../engine/geoPattern';
+import { DEFAULT_GEO, geoAnchors } from '../engine/geoPattern';
 
 export interface PresetDef {
   id: string;
@@ -11,7 +11,7 @@ export interface PresetDef {
   settings: Partial<GenerationSettings> & Pick<GenerationSettings, 'category' | 'motifs' | 'layout'>;
   geo?: Partial<GeoSettings>;
   showMotifs?: boolean;
-  tag?: 'geometric';
+  tag?: 'geometric' | 'indian';
 }
 
 const NOSTALGIA = ['#6E2B33', '#E3A7B4', '#A8C0D2', '#6F7D4C', '#F1E4CE'];
@@ -150,21 +150,84 @@ PRESETS.push(
   },
 );
 
+const INDIAN = (p: Omit<PresetDef, 'tag'>): PresetDef => ({ ...p, tag: 'indian' });
+PRESETS.push(
+  INDIAN({
+    id: 'in-mughal-garden', name: 'Mughal Garden', description: 'Onion-arch trellis with a flower in every arch.',
+    palette: ['#B5532F', '#1F5E4A', '#E3A33B', '#2B3A67', '#F3E9D2'], background: solid('#F3E9D2'), showMotifs: true,
+    settings: { category: 'indian', motifs: ['mughalFlower'], layout: 'cells', colorMode: 'byMotif', motifColors: { mughalFlower: [0, 3, 1] }, rotationMode: '0', variation: 0, scale: 120, seed: 1601 },
+    geo: { style: 'ogee', repeat: 5, aspect: 1.35, weight: 40, colors: [-1, 1, 2, 0, 3], outline: true },
+  }),
+  INDIAN({
+    id: 'in-royal-elephants', name: 'Royal Elephants', description: 'Caparisoned elephants with marigolds on crimson.',
+    palette: ['#8E1B1B', '#D4A23A', '#1E3F5A', '#C8553D', '#F4E3C1'], background: solid('#8E1B1B'), showMotifs: true,
+    settings: { category: 'indian', motifs: ['royalElephant', 'marigold', 'smallFlower'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { royalElephant: [1, 4], marigold: [3, 1], smallFlower: [4] }, rotationMode: '0', density: 45, scale: 160, variation: 15, seed: 1602 },
+  }),
+  INDIAN({
+    id: 'in-paisley-buta', name: 'Paisley Buta', description: 'Classic tossed paisley butas on ivory.',
+    palette: ['#7A2E1F', '#2F3B5C', '#C99A3B', '#E9DCC0', '#4F6B3A'], background: solid('#F6EEDC'), showMotifs: true,
+    settings: { category: 'indian', motifs: ['buta', 'kairi', 'smallFlower'], layout: 'tossed', colorMode: 'byMotif', motifColors: { buta: [0, 1, 4], kairi: [1, 2, 0], smallFlower: [2, 0] }, rotationMode: 'random', rotationMin: -30, rotationMax: 30, density: 60, scale: 135, variation: 30, seed: 1603 },
+  }),
+  INDIAN({
+    id: 'in-peacock-court', name: 'Peacock Court', description: 'Peacocks and lotus blooms in teal and gold.',
+    palette: ['#0F6E73', '#1B3B6F', '#D9A441', '#F5EBDD', '#7FB069'], background: solid('#F5EBDD'), showMotifs: true,
+    settings: { category: 'indian', motifs: ['peacock', 'lotusBloom', 'buta'], layout: 'brick', colorMode: 'byMotif', motifColors: { peacock: [0, 1], lotusBloom: [1, 0, 4], buta: [2, 0] }, rotationMode: '0', density: 50, scale: 150, variation: 15, seed: 1604 },
+  }),
+  INDIAN({
+    id: 'in-jaipur-block', name: 'Jaipur Block Print', description: 'Hand-block mihrab arches in rows.',
+    palette: ['#A3242C', '#2F3B5C', '#C99A3B', '#F2EBDD', '#4F6B3A'], background: solid('#F2EBDD'), showMotifs: true,
+    settings: { category: 'indian', motifs: ['mihrab', 'smallFlower'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { mihrab: [0, 1], smallFlower: [2] }, rotationMode: '0', density: 50, scale: 150, variation: 10, seed: 1605 },
+  }),
+  INDIAN({
+    id: 'in-ajrakh-star', name: 'Ajrakh Star', description: 'Indigo jali screen with crimson Ajrakh stars.',
+    palette: ['#1E2A4A', '#A3242C', '#111111', '#F2EBDD', '#C9A227'], background: solid('#1E2A4A'), showMotifs: true,
+    settings: { category: 'indian', motifs: ['ajrakhStar'], layout: 'cells', colorMode: 'byMotif', motifColors: { ajrakhStar: [3, 4] }, rotationMode: '0', variation: 0, scale: 70, seed: 1606 },
+    geo: { style: 'jali', repeat: 6, aspect: 1, weight: 80, colors: [-1, 1, 4, 3, 2] },
+  }),
+  INDIAN({
+    id: 'in-bandhani-red', name: 'Bandhani Red', description: 'Tie-dye dot clusters on festive red.',
+    palette: ['#B3122E', '#F4E3C1', '#F2B705', '#2F6B3A', '#111111'], background: solid('#B3122E'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'bandhani', repeat: 7, aspect: 1, weight: 55, colors: [-1, 1, 2, 3, 3], outline: true },
+  }),
+  INDIAN({
+    id: 'in-ikat-indigo', name: 'Ikat Indigo', description: 'Feathered ikat diamonds in indigo and ivory.',
+    palette: ['#1E2A4A', '#F2EBDD', '#A3242C', '#C9A227', '#4F6B3A'], background: solid('#1E2A4A'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'ikat', repeat: 5, aspect: 1.6, weight: 85, colors: [-1, 1, 2, 3, 3] },
+  }),
+  INDIAN({
+    id: 'in-festive-diya', name: 'Festive Diya', description: 'Diyas, rangoli and marigolds for Diwali.',
+    palette: ['#F2B705', '#E86A33', '#FFF4D6', '#4C7A34', '#8C2F39'], background: solid('#5A1420'), showMotifs: true,
+    settings: { category: 'indian', motifs: ['diya', 'rangoli', 'marigold'], layout: 'random', colorMode: 'mixed', rotationMode: '0', density: 55, scale: 125, variation: 25, seed: 1609 },
+  }),
+  INDIAN({
+    id: 'in-ethnic-bands', name: 'Ethnic Bands', description: 'Temple, diamond and check borders in rows.',
+    palette: ['#7A2E1F', '#C99A3B', '#2F3B5C', '#E9DCC0', '#4F6B3A'], background: solid('#E9DCC0'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'bands', repeat: 6, aspect: 1.2, weight: 60, colors: [-1, 0, 1, 2, 3] },
+  }),
+  INDIAN({
+    id: 'in-kolam', name: 'Kolam', description: 'South-Indian kolam and rangoli on ivory.',
+    palette: ['#8C2F39', '#F2B705', '#1B3B6F', '#FFF4D6', '#4C7A34'], background: solid('#FFF4D6'), showMotifs: true,
+    settings: { category: 'indian', motifs: ['kolam', 'rangoli', 'lotusTop'], layout: 'grid', colorMode: 'byMotif', motifColors: { kolam: [0, 2], rangoli: [0, 1, 2], lotusTop: [4, 1, 0] }, rotationMode: '0', density: 55, scale: 130, variation: 10, seed: 1611 },
+  }),
+);
+
 export const GALLERY_PRESETS = PRESETS.filter((p) => p.id !== 'botanical-meadow');
 export const PRESET_MAP = Object.fromEntries(PRESETS.map((p) => [p.id, p]));
 
 export function stateFromPreset(p: PresetDef, overrides: Partial<GenerationSettings> = {}): PatternState {
   const settings: GenerationSettings = { ...DEFAULT_SETTINGS, motifColors: undefined, ...p.settings, ...overrides };
+  const geo = { ...DEFAULT_GEO, ...(p.geo ?? {}), enabled: !!p.geo };
+  const anchors = settings.layout === 'cells' && geo.enabled ? geoAnchors(geo, settings.tileWidth, settings.tileHeight) : undefined;
   return {
     name: p.name,
     presetId: p.id,
     settings,
     palette: [...p.palette],
     background: { ...p.background },
-    objects: generatePattern(settings),
+    objects: generatePattern(settings, [], anchors),
     hiddenTypes: [],
     edited: false,
-    geo: { ...DEFAULT_GEO, ...(p.geo ?? {}), enabled: !!p.geo },
+    geo,
     showMotifs: p.showMotifs ?? true,
   };
 }

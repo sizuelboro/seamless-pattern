@@ -15,6 +15,12 @@ export const PALETTES: PalettePreset[] = [
   { id: 'nostalgia', name: 'Nostalgia', colors: ['#6E2B33', '#E3A7B4', '#A8C0D2', '#6F7D4C', '#F1E4CE'] },
   { id: 'parlour', name: 'Parlour', colors: ['#2E2233', '#8FA9C4', '#E9DCC4', '#B5485B', '#D7B46A'] },
   { id: 'bistro', name: 'Bistro', colors: ['#5E7A45', '#F2C9C4', '#C2473B', '#F7EEDC', '#3B3A30'] },
+  { id: 'mughal', name: 'Mughal', colors: ['#B5532F', '#1F5E4A', '#E3A33B', '#2B3A67', '#F3E9D2'] },
+  { id: 'rajwada', name: 'Rajwada', colors: ['#8E1B1B', '#D4A23A', '#1E3F5A', '#C8553D', '#F4E3C1'] },
+  { id: 'kalamkari', name: 'Kalamkari', colors: ['#7A2E1F', '#2F3B5C', '#C99A3B', '#E9DCC0', '#4F6B3A'] },
+  { id: 'ajrakh', name: 'Ajrakh', colors: ['#1E2A4A', '#A3242C', '#111111', '#F2EBDD', '#C9A227'] },
+  { id: 'haldi', name: 'Haldi-Mehndi', colors: ['#F2B705', '#4C7A34', '#E86A33', '#FFF4D6', '#8C2F39'] },
+  { id: 'peacock', name: 'Peacock', colors: ['#0F6E73', '#1B3B6F', '#D9A441', '#F5EBDD', '#7FB069'] },
   { id: 'halloween', name: 'Halloween', colors: ['#F28C28', '#7B4AA3', '#F6E7C1', '#1A1423', '#4E8A3E'] },
 ];
 

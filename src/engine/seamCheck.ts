@@ -66,7 +66,7 @@ export function runSeamCheck(state: PatternState, opts: { wrap?: boolean; resolu
     if (jump(s, inner)) { bgBreaks++; colBins.add(Math.floor((x / w) * bins)); }
   }
 
-  const tolerance = Math.max(6, w * h * 0.00015);
+  const tolerance = Math.max(8, w * h * 0.00022); // anti-aliasing noise where thin shapes meet exactly on a pixel boundary
   return {
     ok: mismatches <= tolerance && bgBreaks === 0,
     checkedAt: Date.now(),

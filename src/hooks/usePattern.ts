@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Background, GenerationSettings, GeoSettings, GeoStyle, PatternObject, PatternState } from '../types/pattern';
-import { DEFAULT_GEO, GEO_STYLES, GEO_MAP, GEO_ACCENTS, geoWithStyle } from '../engine/geoPattern';
+import { DEFAULT_GEO, GEO_STYLES, GEO_MAP, GEO_ACCENTS, geoWithStyle, geoAnchors } from '../engine/geoPattern';
 import { useHistory } from './useHistory';
 import { generatePattern } from '../engine/patternGenerator';
 import { createRng, mod, randomSeed } from '../engine/random';
@@ -15,6 +15,18 @@ const GEN_KEYS: (keyof GenerationSettings)[] = [
   'spacing', 'variation', 'opacity', 'seed', 'stripeDirection', 'colorMode', 'motifColors', 'tileWidth', 'tileHeight',
 ];
 
+/** Motif anchors from the geometric base, used by the "Fit base" layout. */
+export function anchorsFor(state: Pick<PatternState, 'geo'>, settings: GenerationSettings) {
+  if (settings.layout !== 'cells' || !state.geo?.enabled) return undefined;
+  return geoAnchors(state.geo, settings.tileWidth, settings.tileHeight);
+}
+
+/** Regenerate after a geo change when motifs are fitted to the base. */
+function regenIfFitted(s: PatternState): PatternState {
+  if (s.settings.layout !== 'cells') return s;
+  return { ...s, objects: generatePattern(s.settings, s.objects, anchorsFor(s, s.settings)), edited: false };
+}
+
 /** Apply settings and deterministically regenerate motifs (locked motifs survive). */
 export function withSettings(state: PatternState, patch: Partial<GenerationSettings>): PatternState {
   const settings = { ...state.settings, ...patch };
@@ -27,10 +39,10 @@ export function withSettings(state: PatternState, patch: Partial<GenerationSetti
     const k = Math.sqrt(sx * sy);
     keep = keep.map((o) => (o.locked ? { ...o, x: o.x * sx, y: o.y * sy, width: o.width * k, height: o.height * k } : o));
   }
-  return { ...state, settings, objects: generatePattern(settings, keep), edited: false };
+  return { ...state, settings, objects: generatePattern(settings, keep, anchorsFor(state, settings)), edited: false };
 }
 
-const LAYOUTS: LayoutMode[] = ['random', 'grid', 'brick', 'hex', 'halfdrop', 'mirror', 'radial', 'tossed', 'stripe', 'checker'];
+const LAYOUTS: LayoutMode[] = ['random', 'grid', 'brick', 'hex', 'halfdrop', 'mirror', 'radial', 'tossed', 'stripe', 'checker', 'cells'];
 const ROTATIONS: RotationMode[] = ['random', '0', '45', '90', '180', 'custom'];
 
 export function randomGeo(paletteSize: number, avoid?: GeoStyle): GeoSettings {
@@ -94,7 +106,7 @@ export function usePattern(initial: () => PatternState) {
       const rng = createRng(randomSeed());
       return withSettings(s, {
         seed: randomSeed(),
-        layout: rng.pick(LAYOUTS.filter((l) => l !== 'checker' || s.settings.motifs.length > 1)),
+        layout: rng.pick(LAYOUTS.filter((l) => (l !== 'checker' || s.settings.motifs.length > 1) && (l !== 'cells' || !!s.geo?.enabled))),
         rotationMode: rng.pick(ROTATIONS),
         rotationMin: -rng.int(5, 45), rotationMax: rng.int(5, 45),
         variation: rng.int(10, 70),
@@ -112,7 +124,7 @@ export function usePattern(initial: () => PatternState) {
       const geoOn = rng.chance(0.35);
       const next = withSettings({ ...s, presetId: null, name: 'Untitled pattern', palette, geo: geoOn ? randomGeo(palette.length) : { ...(s.geo ?? DEFAULT_GEO), enabled: false }, showMotifs: geoOn ? rng.chance(0.4) : true, background: { ...s.background, type: 'solid', color: bgPick } }, {
         category: cat.id, motifs, colorMode: 'mixed', motifColors: undefined,
-        seed: randomSeed(), layout: rng.pick(LAYOUTS), rotationMode: rng.pick(ROTATIONS),
+        seed: randomSeed(), layout: rng.pick(LAYOUTS.filter((l) => l !== 'cells' || geoOn)), rotationMode: rng.pick(ROTATIONS),
         rotationMin: -rng.int(5, 45), rotationMax: rng.int(5, 45),
         variation: rng.int(10, 70), density: rng.int(45, 90), scale: rng.int(70, 140), spacing: rng.int(0, 80),
       });
@@ -120,16 +132,16 @@ export function usePattern(initial: () => PatternState) {
     }),
 
     setGeo: (patch: Partial<GeoSettings>, coalesce?: string) =>
-      set((s) => ({ ...s, geo: { ...(s.geo ?? DEFAULT_GEO), ...patch } }), { coalesce }),
+      set((s) => regenIfFitted({ ...s, geo: { ...(s.geo ?? DEFAULT_GEO), ...patch } }), { coalesce }),
 
-    setGeoStyle: (style: GeoStyle) => set((s) => ({ ...s, geo: geoWithStyle({ ...(s.geo ?? DEFAULT_GEO), enabled: true }, style) })),
+    setGeoStyle: (style: GeoStyle) => set((s) => regenIfFitted({ ...s, geo: geoWithStyle({ ...(s.geo ?? DEFAULT_GEO), enabled: true }, style) })),
 
     setShowMotifs: (on: boolean) => set((s) => ({ ...s, showMotifs: on })),
 
     /** New random geometric look: style, proportions, accent and colour slots. */
-    randomizeGeo: () => set((s) => ({ ...s, geo: randomGeo(s.palette.length, s.geo?.style) })),
+    randomizeGeo: () => set((s) => regenIfFitted({ ...s, geo: randomGeo(s.palette.length, s.geo?.style) })),
 
-    regenerate: () => set((s) => ({ ...s, objects: generatePattern(s.settings, s.objects), edited: false })),
+    regenerate: () => set((s) => ({ ...s, objects: generatePattern(s.settings, s.objects, anchorsFor(s, s.settings)), edited: false })),
 
     loadPreset: (p: PresetDef) => set((s) => {
       const fresh = stateFromPreset(p, { tileWidth: s.settings.tileWidth, tileHeight: s.settings.tileHeight });

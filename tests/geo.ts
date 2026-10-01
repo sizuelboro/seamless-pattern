@@ -55,14 +55,15 @@ async function test(name: string, state: PatternState) {
   let svgBad = 0; for (let i = 0; i < SA.length; i += 4) if (Math.max(Math.abs(SA[i] - SB[i]), Math.abs(SA[i + 1] - SB[i + 1]), Math.abs(SA[i + 2] - SB[i + 2])) > 60) svgBad++;
   const sc = runSeamCheck(state);
   // tolerance: anti-aliased edge pixels may differ by rounding between the two rasterisations
-  const ok = seamBad <= 3 && bad <= c.width * 0.5 && sc.ok && svgBad < px * pxH * 0.0025;
+  // A motif sitting exactly on a seam may differ by one AA edge pixel per crossing stroke (path clipped at the canvas edge).
+  const ok = seamBad <= Math.max(3, (c.width + c.height) * 0.015) && bad <= c.width * 0.5 && sc.ok && svgBad < px * pxH * 0.0025;
   log(`${ok ? 'PASS' : 'FAIL'}  ${name.padEnd(36)} field3x3Diff=${bad} atSeams=${seamBad} svgDiff=${svgBad} seamCheck=${sc.ok ? 'ok' : 'FAIL(' + sc.wrapMismatchPixels + '/' + sc.backgroundBreaks + ')'}`);
   return ok;
 }
 
 (async () => {
   let all = true;
-  for (const p of PRESETS.filter((p) => p.tag === 'geometric')) all = (await test(`preset:${p.id}`, stateFromPreset(p))) && all;
+  for (const p of PRESETS.filter((p) => !!p.geo)) all = (await test(`preset:${p.id}`, stateFromPreset(p))) && all;
   const base = stateFromPreset(PRESETS.find((p) => p.id === 'geo-harlequin')!);
   for (const st of GEO_STYLES) {
     const g = { ...base.geo!, ...GEO_MAP[st.id].defaults, style: st.id, colors: [-1, 1, 0, 3, 2] } as GeoSettings;

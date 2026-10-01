@@ -38,6 +38,11 @@ export const GEO_STYLES: GeoStyleMeta[] = [
   { id: 'chevron', name: 'Chevron', hint: 'Zig-zag bands', roles: [[0, 'Base'], [1, 'Chevron'], [2, 'Pinline']], outline: 'Pinline', rotate: 'transpose', defaults: { repeat: 6, aspect: 0.6, weight: 45 } },
   { id: 'scallop', name: 'Scallop', hint: 'Fish-scale rows', roles: [[0, 'Base'], [1, 'Scale'], [2, 'Outline'], [4, 'Alt scale'], [3, 'Accent']], outline: 'Alternate rows', rotate: 'transpose', accent: true, defaults: { repeat: 8, aspect: 1, weight: 30 } },
   { id: 'dots', name: 'Polka', hint: 'Half-drop polka dots', roles: [[0, 'Base'], [1, 'Dot'], [2, 'Ring']], outline: 'Rings', defaults: { repeat: 8, aspect: 1, weight: 55 } },
+  { id: 'ogee', name: 'Ogee', hint: 'Mughal onion trellis', roles: [[0, 'Base'], [1, 'Onion'], [2, 'Lattice'], [3, 'Accent']], outline: 'Fill onions', accent: true, defaults: { repeat: 5, aspect: 1.35, weight: 40, outline: true } },
+  { id: 'jali', name: 'Jali', hint: 'Star-and-cross screen', roles: [[0, 'Base'], [1, 'Star'], [2, 'Cross'], [3, 'Accent']], outline: 'Outline', accent: true, defaults: { repeat: 6, aspect: 1, weight: 80 } },
+  { id: 'bandhani', name: 'Bandhani', hint: 'Tie-dye dot clusters', roles: [[0, 'Base'], [1, 'Dots'], [2, 'Dot centres'], [3, 'Accent']], outline: 'Dot centres', accent: true, defaults: { repeat: 7, aspect: 1, weight: 55, outline: true } },
+  { id: 'ikat', name: 'Ikat', hint: 'Feathered diamonds', roles: [[0, 'Base'], [1, 'Diamond'], [2, 'Inner'], [3, 'Accent']], accent: true, rotate: 'transpose', defaults: { repeat: 5, aspect: 1.6, weight: 85 } },
+  { id: 'bands', name: 'Ethnic bands', hint: 'Temple, diamond and check borders', roles: [[0, 'Base'], [1, 'Bands'], [2, 'Temples'], [3, 'Diamonds']], rotate: 'transpose', defaults: { repeat: 6, aspect: 1.2, weight: 60 } },
   { id: 'wave', name: 'Waves', hint: 'Wavy ribbons', roles: [[0, 'Base'], [1, 'Wave'], [2, 'Pinline']], outline: 'Pinline', rotate: 'transpose', defaults: { repeat: 4, aspect: 0.5, weight: 45 } },
 ];
 export const GEO_MAP = Object.fromEntries(GEO_STYLES.map((s) => [s.id, s])) as Record<GeoStyle, GeoStyleMeta>;
@@ -70,6 +75,28 @@ export function geoGrid(g: GeoSettings, W: number, H: number) {
   return { mode, BW, BH, cols, rows, cw, ch: BH / rows };
 }
 
+type Seg = [[number, number], [number, number], [number, number], [number, number]];
+const lerp = (a: [number, number], b: [number, number], t: number): [number, number] => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+/** de Casteljau split of a cubic at t = ½. */
+function split(s: Seg): [Seg, Seg] {
+  const [p0, p1, p2, p3] = s;
+  const a = lerp(p0, p1, 0.5), b = lerp(p1, p2, 0.5), c = lerp(p2, p3, 0.5), d = lerp(a, b, 0.5), e = lerp(b, c, 0.5), m = lerp(d, e, 0.5);
+  return [[p0, a, d, m], [m, e, c, p3]];
+}
+const off = (s: Seg, dx: number, dy: number): Seg => s.map(([x, y]) => [x + dx, y + dy]) as Seg;
+const rev = (s: Seg): Seg => [s[3], s[2], s[1], s[0]];
+
+const FLAT_STEPS = 20;
+function flatten([p0, p1, p2, p3]: Seg, withStart: boolean): [number, number][] {
+  const out: [number, number][] = [];
+  for (let k = withStart ? 0 : 1; k <= FLAT_STEPS; k++) {
+    const t = k / FLAT_STEPS, u = 1 - t;
+    const a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, d = t * t * t;
+    out.push([a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0], a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1]]);
+  }
+  return out;
+}
+
 class PathBuilder {
   parts: string[] = [];
   constructor(private P: (x: number, y: number) => string) {}
@@ -93,6 +120,13 @@ class PathBuilder {
     const rr = n(r);
     const q = [this.P(cx + r, cy), this.P(cx, cy + r), this.P(cx - r, cy), this.P(cx, cy - r)];
     this.parts.push(`M${q[0]}A${rr} ${rr} 0 0 1 ${q[1]}A${rr} ${rr} 0 0 1 ${q[2]}A${rr} ${rr} 0 0 1 ${q[3]}A${rr} ${rr} 0 0 1 ${q[0]}Z`);
+  }
+  /** Béziers are flattened to short lines: curve rasterisation varies with absolute position, lines don't. */
+  curve(s: Seg) {
+    this.polyline(flatten(s, true));
+  }
+  closedCurves(list: Seg[]) {
+    this.poly(list.flatMap((s, i) => flatten(s, i === 0)));
   }
   get d() { return this.parts.join(''); }
   get empty() { return this.parts.length === 0; }
@@ -297,6 +331,118 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
       }
       break;
     }
+    case 'ogee': {
+      const k = 0.55;
+      const lwO = Math.max(0.6, unit * (0.01 + wt * 0.07));
+      // S-curves A: (0,0)→(cw,ch) and B: (cw,0)→(0,ch), relative to the cell origin.
+      const A: Seg = [[0, 0], [0, k * ch], [cw, ch - k * ch], [cw, ch]];
+      const B: Seg = [[cw, 0], [cw, k * ch], [0, ch - k * ch], [0, ch]];
+      const [A1, A2] = split(A), [B1, B2] = split(B);
+      const lines = pb(), on = pb();
+      each((x0, y0) => {
+        if (g.outline) {
+          // onion centred on the cell's left edge: A1(i) → B2(i) → reverse A2(i-1) → reverse B1(i-1)
+          on.closedCurves([off(A1, x0, y0), off(B2, x0, y0), rev(off(A2, x0 - cw, y0)), rev(off(B1, x0 - cw, y0))]);
+        }
+        accents.push([x0, y0 + ch / 2]);
+      });
+      // Lattice: chain the S-curves into continuous diagonals so no butt-capped joints sit at cell corners
+      // (abutting caps leave a sub-pixel seam that changes with the tile offset).
+      for (let d = I0 - J1; d <= I1 - J0; d++) {
+        const pts: [number, number][] = [];
+        for (let j = J0; j <= J1; j++) { const i = d + j; if (i >= I0 && i <= I1) pts.push(...flatten(off(A, i * cw, j * ch), pts.length === 0)); }
+        if (pts.length > 1) lines.polyline(pts);
+      }
+      for (let t = I0 + J0; t <= I1 + J1; t++) {
+        const pts: [number, number][] = [];
+        for (let j = J0; j <= J1; j++) { const i = t - j; if (i >= I0 && i <= I1) pts.push(...flatten(off(B, i * cw, j * ch), pts.length === 0)); }
+        if (pts.length > 1) lines.polyline(pts);
+      }
+      fill(on, 1);
+      stroke(lines, 2, lwO);
+      break;
+    }
+    case 'jali': {
+      const st = pb(), cr = pb();
+      const ro = unit * 0.46 * wt, ri = ro * 0.62;
+      const cs = unit * 0.2 * wt;
+      each((x0, y0) => {
+        const cx = x0 + cw / 2, cy = y0 + ch / 2;
+        const pts: [number, number][] = [];
+        for (let i = 0; i < 16; i++) { const a = -Math.PI / 2 + (i * Math.PI) / 8, r = i % 2 ? ri : ro; pts.push([cx + Math.cos(a) * r * (cw / unit), cy + Math.sin(a) * r * (ch / unit)]); }
+        st.poly(pts);
+        cr.poly([[x0, y0 - cs * (ch / unit)], [x0 + cs * (cw / unit), y0], [x0, y0 + cs * (ch / unit)], [x0 - cs * (cw / unit), y0]]);
+        accents.push([cx, cy]);
+      });
+      fill(st, 1); fill(cr, 2);
+      if (g.outline) stroke(st, 2, lw * 0.8);
+      break;
+    }
+    case 'bandhani': {
+      const dr = unit * 0.07 * (0.4 + wt);
+      const dots = pb(), centres = pb();
+      each((x0, y0) => {
+        const cx = x0 + cw / 2, cy = y0 + ch / 2;
+        const ringPts: [number, number][] = [];
+        for (let i = 0; i < 6; i++) { const a = (i * Math.PI) / 3; ringPts.push([cx + Math.cos(a) * unit * 0.2, cy + Math.sin(a) * unit * 0.2]); }
+        ringPts.push([cx, cy], [x0, y0]);
+        for (const [x, y] of ringPts) { dots.circle(x, y, dr); if (g.outline) centres.circle(x, y, dr * 0.38); }
+        accents.push([x0 + cw / 2, y0]);
+      });
+      fill(dots, 1); fill(centres, 2);
+      break;
+    }
+    case 'ikat': {
+      const dia = pb(), inner = pb();
+      const S = 7;
+      const jag = (pts: [number, number][], cx: number, cy: number, hx: number, hy: number, j: number) => {
+        const corners: [number, number][] = [[cx, cy - hy], [cx + hx, cy], [cx, cy + hy], [cx - hx, cy]];
+        for (let e = 0; e < 4; e++) {
+          const [ax, ay] = corners[e], [bx2, by2] = corners[(e + 1) % 4];
+          for (let t = 0; t < S; t++) {
+            const u = t / S, x = ax + (bx2 - ax) * u, y = ay + (by2 - ay) * u;
+            pts.push([x + (t % 2 ? j : -j) * Math.sign(x - cx || 1), y]);
+          }
+        }
+      };
+      each((x0, y0) => {
+        const cx = x0 + cw / 2, cy = y0 + ch / 2;
+        const hx = (cw / 2) * wt * 0.95, hy = (ch / 2) * 0.95;
+        const p1: [number, number][] = [], p2: [number, number][] = [];
+        jag(p1, cx, cy, hx, hy, hx * 0.09);
+        jag(p2, cx, cy, hx * 0.5, hy * 0.5, hx * 0.06);
+        dia.poly(p1); inner.poly(p2);
+        accents.push([cx, cy]);
+      });
+      fill(dia, 1); fill(inner, 2);
+      break;
+    }
+    case 'bands': {
+      const b1 = pb(), tri = pb(), dm = pb();
+      const k = 0.6 + wt * 0.4;
+      for (let j = J0; j <= J1; j++) {
+        const y0 = j * ch;
+        b1.rect(left, y0, right - left, ch * 0.1 * k);
+        b1.rect(left, y0 + ch * 0.44, right - left, ch * 0.025);
+        b1.rect(left, y0 + ch * 0.76, right - left, ch * 0.025);
+      }
+      each((x0, y0) => {
+        // temple row: 2 stepped triangles per cell
+        for (let t = 0; t < 2; t++) {
+          const bx0 = x0 + (t * cw) / 2, w2 = cw / 2, top2 = y0 + ch * 0.16, base2 = y0 + ch * 0.4;
+          tri.poly([[bx0 + w2 * 0.08, base2], [bx0 + w2 * 0.08, base2 - (base2 - top2) * 0.35], [bx0 + w2 * 0.3, base2 - (base2 - top2) * 0.35], [bx0 + w2 * 0.5, top2], [bx0 + w2 * 0.7, base2 - (base2 - top2) * 0.35], [bx0 + w2 * 0.92, base2 - (base2 - top2) * 0.35], [bx0 + w2 * 0.92, base2]]);
+        }
+        // diamond row
+        for (let t = 0; t < 3; t++) {
+          const cx = x0 + ((t + 0.5) * cw) / 3, cy = y0 + ch * 0.6, hx = cw / 6 * 0.8, hy = ch * 0.1;
+          dm.poly([[cx, cy - hy], [cx + hx, cy], [cx, cy + hy], [cx - hx, cy]]);
+        }
+        // check row
+        for (let t = 0; t < 6; t++) if (t % 2 === 0) b1.rect(x0 + (t * cw) / 6, y0 + ch * 0.84, cw / 6, ch * 0.1);
+      });
+      fill(b1, 1); fill(tri, 2); fill(dm, 3);
+      break;
+    }
     case 'wave': {
       const amp = ch * 0.16, th = ch * wt;
       const a = pb(), l = pb();
@@ -355,6 +501,29 @@ function accentPath(b: PathBuilder, kind: GeoAccent, x: number, y: number, s: nu
     }
     default: break;
   }
+}
+
+/**
+ * Where motifs sit when the layout is "Fit to base": one point per cell, in tile space,
+ * chosen per style (onion centres, diamond centres, the gaps between ikat diamonds…).
+ */
+export function geoAnchors(g: GeoSettings, W: number, H: number): { pts: [number, number][]; size: number } {
+  const { mode, BW, cols, rows, cw, ch } = geoGrid(g, W, H);
+  const wt = clamp(g.weight, 2, 100) / 100;
+  const at: Record<string, [number, number][]> = {
+    ogee: g.outline ? [[0.5, 0]] : [[0, 0.5]], ikat: [[0, 0]], check: [[wt / 2, wt / 2]], stripes: [[wt + (1 - wt) / 2, 0.5]],
+    pinstripe: [[wt / 2, 0.5]], gingham: [[wt + (1 - wt) / 2, wt + (1 - wt) / 2]], plaid: [[wt * 0.3, wt * 0.3]],
+    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
+  };
+  const fr = at[g.style] ?? [[0.5, 0.5]];
+  const pts: [number, number][] = [];
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) for (const [fx, fy] of fr) {
+    let x = (i + fx) * cw; const y = (j + fy) * ch;
+    if (mode === 'mirror') x = BW - x;
+    pts.push(mode === 'transpose' ? [mod(y, W), mod(x, H)] : [mod(x, W), mod(y, H)]);
+  }
+  const cellMin = Math.min(cw, ch);
+  return { pts: pts.slice(0, 1600), size: cellMin * (g.style === 'ogee' ? 0.62 : g.style === 'dots' ? 0.4 : 0.7) };
 }
 
 /** Draw geo ops onto a 2D context already transformed into tile space. */

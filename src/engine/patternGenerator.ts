@@ -11,7 +11,11 @@ interface Ctx {
   base: number;
   cell: number;
   out: PatternObject[];
+  anchors?: Anchors;
 }
+
+/** Fixed motif positions supplied by the geometric base ("Fit to base" layout). */
+export interface Anchors { pts: [number, number][]; size: number }
 
 /** Derived sizes, shared by every layout. All values are tile pixels. */
 function metrics(s: GenerationSettings) {
@@ -90,6 +94,16 @@ const evenCount = (n: number) => Math.max(2, Math.round(n / 2) * 2);
 const count = (len: number, cell: number) => Math.max(1, Math.round(len / cell));
 
 const LAYOUTS: Record<GenerationSettings['layout'], (c: Ctx) => void> = {
+  cells(c) {
+    if (!c.anchors?.pts.length) { LAYOUTS.grid(c); return; }
+    const m = c.s.motifs;
+    const size = c.anchors.size * (c.s.scale / 100);
+    c.anchors.pts.forEach(([x, y], k) => {
+      // alternate motif types in a checker-like rhythm so neighbours differ
+      const type = m[(k + Math.floor(k / Math.max(1, Math.round(Math.sqrt(c.anchors!.pts.length))))) % m.length];
+      push(c, x, y, type, k % 4, { width: size, scale: sizeJitter(c, 0.15) });
+    });
+  },
   random(c) {
     const n = Math.max(1, Math.round((c.W * c.H) / (c.cell * c.cell)));
     const pts = poisson(c, n, c.cell * 0.82);
@@ -205,11 +219,11 @@ const LAYOUTS: Record<GenerationSettings['layout'], (c: Ctx) => void> = {
 };
 
 /** Deterministically generate motif instances. Same settings (incl. seed) => same output. */
-export function generatePattern(s: GenerationSettings, keep: PatternObject[] = []): PatternObject[] {
+export function generatePattern(s: GenerationSettings, keep: PatternObject[] = [], anchors?: Anchors): PatternObject[] {
   const motifs = s.motifs.length ? s.motifs : ['dot'];
   const settings = { ...s, motifs };
   const { W, H, base, cell } = metrics(settings);
-  const c: Ctx = { s: settings, rng: createRng(s.seed), W, H, base, cell, out: [] };
+  const c: Ctx = { s: settings, rng: createRng(s.seed), W, H, base, cell, out: [], anchors };
   LAYOUTS[s.layout](c);
   // 'tile' squares (gingham) should sit behind everything else
   c.out.sort((a, b) => (a.type === 'tile' ? 0 : 1) - (b.type === 'tile' ? 0 : 1));
@@ -235,4 +249,5 @@ export const LAYOUT_OPTIONS: { id: GenerationSettings['layout']; label: string; 
   { id: 'tossed', label: 'Tossed', hint: 'Random rotation, tossed look' },
   { id: 'stripe', label: 'Stripe', hint: 'Motif bands' },
   { id: 'checker', label: 'Checker', hint: 'Alternating cells' },
+  { id: 'cells', label: 'Fit base', hint: 'One motif per geometric cell (block print)' },
 ];

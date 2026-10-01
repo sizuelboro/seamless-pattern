@@ -1,6 +1,6 @@
 export type LayoutMode =
   | 'random' | 'grid' | 'brick' | 'hex' | 'halfdrop'
-  | 'mirror' | 'radial' | 'tossed' | 'stripe' | 'checker';
+  | 'mirror' | 'radial' | 'tossed' | 'stripe' | 'checker' | 'cells';
 
 export type RotationMode = 'random' | '0' | '45' | '90' | '180' | 'custom';
 export type BackgroundType = 'solid' | 'linear' | 'radial' | 'transparent';
@@ -60,7 +60,8 @@ export interface Background {
 
 export type GeoStyle =
   | 'stripes' | 'pinstripe' | 'diagonal' | 'check' | 'gingham' | 'plaid'
-  | 'harlequin' | 'argyle' | 'chevron' | 'scallop' | 'dots' | 'wave';
+  | 'harlequin' | 'argyle' | 'chevron' | 'scallop' | 'dots' | 'wave'
+  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands';
 export type GeoAccent = 'none' | 'dot' | 'sparkle' | 'star' | 'diamond' | 'flower';
 
 /** Geometric base layer, drawn between the background and the motifs. */

@@ -13,6 +13,11 @@ A seamless pattern generator built with React, TypeScript, Vite, Tailwind CSS an
   harlequin, argyle, chevron, scallop, polka, waves) with repeats, cell ratio, weight, accents,
   outlines and per-slot colours. Always seamless (whole cells per tile); motifs can sit on top.
 - **10 vintage geometric presets** and 3 new palettes (Nostalgia, Parlour, Bistro)
+- **Indian Heritage category**: 17 original motifs (buta, kairi, Mughal flower, lotus, marigold,
+  rangoli, mihrab arch, royal elephant, peacock, parrot, diya, kalash, Ajrakh star, kolam,
+  bandhani, temple bell), 5 Indian base styles (Mughal ogee trellis, jali, bandhani, ikat,
+  ethnic bands), a **Fit base** layout that drops one motif into every cell / arch of the base,
+  6 palettes (Mughal, Rajwada, Kalamkari, Ajrakh, Haldi-Mehndi, Peacock) and 11 presets.
 - **Frames studio**: 12 parametric label shapes (Victorian, wavy, scallop, ticket, bracket,
   octagon, stepped, stamp, arch, rounded, oval, cloud) with double lines, offset shadow,
   ornaments and auto-fitting text; 7 page-border styles (checks, blocks, diamonds, dots,

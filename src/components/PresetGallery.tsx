@@ -32,7 +32,7 @@ export function PresetGallery({ onUse }: { onUse: (p: PresetDef) => void }) {
         <h1 className="text-xl font-semibold tracking-tight text-ink-900 dark:text-white">Presets</h1>
         <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">Start from a curated seamless pattern, then make it yours.</p>
       </div>
-      {([['Motif patterns', GALLERY_PRESETS.filter((p) => p.tag !== 'geometric')], ['Geometric & vintage', GALLERY_PRESETS.filter((p) => p.tag === 'geometric')]] as const).map(([title, list]) => (
+      {([['Motif patterns', GALLERY_PRESETS.filter((p) => !p.tag)], ['Indian heritage', GALLERY_PRESETS.filter((p) => p.tag === 'indian')], ['Geometric & vintage', GALLERY_PRESETS.filter((p) => p.tag === 'geometric')]] as const).map(([title, list]) => (
         <section key={title} className="mb-8">
           <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">{title}</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
