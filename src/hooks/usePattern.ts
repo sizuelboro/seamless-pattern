@@ -91,7 +91,11 @@ export function usePattern(initial: () => PatternState) {
 
     selectCategory: (id: GenerationSettings['category']) => set((s) => {
       const cat = CATEGORY_MAP[id];
-      return withSettings({ ...s, presetId: null, showMotifs: true }, { category: id, motifs: [...cat.motifs], motifColors: undefined, colorMode: 'mixed', ...(id === 'chintz' ? { layout: 'vine' as const } : {}) });
+      // Bodo Agor: start from a dokhona border base with the motifs woven into its field
+      const bodo = id === 'bodo' && !s.geo?.enabled;
+      const geo = bodo ? geoWithStyle({ ...(s.geo ?? DEFAULT_GEO), enabled: true, outline: false }, 'agor') : s.geo;
+      const base = { ...s, presetId: null, showMotifs: true, geo: bodo ? { ...geo!, outline: false } : geo };
+      return withSettings(base, { category: id, motifs: [...cat.motifs], motifColors: undefined, colorMode: 'mixed', ...(id === 'chintz' ? { layout: 'vine' as const } : bodo ? { layout: 'cells' as const } : {}) });
     }),
 
     toggleMotif: (type: string) => set((s) => {

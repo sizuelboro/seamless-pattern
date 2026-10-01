@@ -11,6 +11,7 @@
  */
 import type { GeoSettings, GeoStyle, GeoAccent } from '../types/pattern';
 import { mod } from './random';
+import { dd, runs, type Lit } from './pixelGrid';
 
 export interface GeoOp { d: string; fill?: string; stroke?: string; sw?: number; alpha?: number; rule?: 'evenodd' }
 
@@ -44,6 +45,7 @@ export const GEO_STYLES: GeoStyleMeta[] = [
   { id: 'ikat', name: 'Ikat', hint: 'Feathered diamonds', roles: [[0, 'Base'], [1, 'Diamond'], [2, 'Inner'], [3, 'Accent']], accent: true, rotate: 'transpose', defaults: { repeat: 5, aspect: 1.6, weight: 85 } },
   { id: 'bands', name: 'Ethnic bands', hint: 'Temple, diamond and check borders', roles: [[0, 'Base'], [1, 'Bands'], [2, 'Temples'], [3, 'Diamonds']], rotate: 'transpose', defaults: { repeat: 6, aspect: 1.2, weight: 60 } },
   { id: 'aztec', name: 'Aztec', hint: 'Tribal medallions with arrow and sawtooth borders', roles: [[0, 'Base'], [1, 'Main'], [2, 'Arrows'], [3, 'Accent']], rotate: 'transpose', defaults: { repeat: 4, aspect: 1.7, weight: 70 } },
+  { id: 'agor', name: 'Bodo Agor', hint: 'Dokhona border: stripes, zigzags and a pigeon-eye diamond on a counted thread grid', roles: [[0, 'Base'], [1, 'Border'], [2, 'Zigzag'], [3, 'Eye'], [4, 'Field buti']], outline: 'Field buti', rotate: 'transpose', defaults: { repeat: 6, aspect: 1.8, weight: 60, outline: true } },
   { id: 'wave', name: 'Waves', hint: 'Wavy ribbons', roles: [[0, 'Base'], [1, 'Wave'], [2, 'Pinline']], outline: 'Pinline', rotate: 'transpose', defaults: { repeat: 4, aspect: 0.5, weight: 45 } },
 ];
 export const GEO_MAP = Object.fromEntries(GEO_STYLES.map((s) => [s.id, s])) as Record<GeoStyle, GeoStyleMeta>;
@@ -444,6 +446,51 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
       fill(b1, 1); fill(tri, 2); fill(dm, 3);
       break;
     }
+    case 'agor': {
+      // Counted-thread dokhona border: 24 threads per repeat across, 25 rows of border, field below.
+      const G = 24, ROWS = 25, ux = cw / G, uy = Math.min(ux, ch / (ROWS + 2));
+      const band: Lit = (x, y) => {
+        if (y <= 1 || y >= ROWS - 2) return '#';
+        const zz = (row: number, flip: boolean) => ((x % 4 < 2) !== (flip ? row === 4 : row === 3) ? '+' : null);
+        if (y === 3 || y === 4) return zz(y, false);
+        if (y === 20 || y === 21) return zz(y === 20 ? 3 : 4, true);
+        if (y >= 6 && y <= 18) {
+          const d = dd(x - 12, y - 12);
+          if (d === 6 || d === 5) return '#';
+          if (d === 3) return '+';
+          if (d === 1) return '#';
+          if (d === 0) return '*';
+          const e = dd(x < 12 ? x : x - G, y - 12);
+          if (e <= 2) return e === 0 ? '*' : 'o';
+        }
+        return null;
+      };
+      const bandRuns = runs(band, 0, 0, G, ROWS);
+      const buti: Lit = (x, y) => {
+        const d = dd(x, y);
+        if (d === 0) return '*';
+        if ((x === 0 || y === 0) && d <= 3) return '#';
+        if (Math.abs(x) === 2 && Math.abs(y) === 2 && wt > 0.35) return '#';
+        return null;
+      };
+      const butiRuns = runs((x, y) => buti(x - 3, y - 3), 0, 0, 7, 7);
+      const P1 = pb(), P2 = pb(), P3 = pb(), P4 = pb(), P5 = pb();
+      const slot: Record<string, PathBuilder> = { '#': P1, '+': P2, o: P3, '*': P3 };
+      const bl = 0.04;
+      const fieldTop = ROWS * uy, fieldH = ch - fieldTop;
+      each((x0, y0) => {
+        for (const [k, list] of bandRuns) for (const [x, y, l] of list) slot[k].rect(x0 + x * ux, y0 + y * uy, l * ux + ux * bl, uy * (1 + bl));
+        if (g.outline && fieldH >= 8 * uy) {
+          const spots = wt > 0.65 ? [[0.5, 0.5], [0, 0.5]] : [[0.5, 0.5]];
+          for (const [fx, fy] of spots) {
+            const bx = x0 + fx * cw - 3.5 * ux, by = y0 + fieldTop + fy * fieldH - 3.5 * uy;
+            for (const [k, list] of butiRuns) for (const [x, y, l] of list) (k === '*' ? P3 : P4).rect(bx + x * ux, by + y * uy, l * ux + ux * bl, uy * (1 + bl));
+          }
+        }
+      });
+      fill(P1, 1); fill(P2, 2); fill(P4, 4); fill(P3, 3); void P5;
+      break;
+    }
     case 'aztec': {
       const mn = pb(), ar = pb(), ac = pb(), cut = pb();
       const k = 0.55 + wt * 0.45;
@@ -577,7 +624,7 @@ export function geoAnchors(g: GeoSettings, W: number, H: number): { pts: [number
   const at: Record<string, [number, number][]> = {
     ogee: g.outline ? [[0.5, 0]] : [[0, 0.5]], ikat: [[0, 0]], check: [[wt / 2, wt / 2]], stripes: [[wt + (1 - wt) / 2, 0.5]],
     pinstripe: [[wt / 2, 0.5]], gingham: [[wt + (1 - wt) / 2, wt + (1 - wt) / 2]], plaid: [[wt * 0.3, wt * 0.3]],
-    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], aztec: [[0, 0.5]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
+    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], aztec: [[0, 0.5]], agor: [[0.5, Math.min(0.95, (25 * Math.min(cw / 24, ch / 27) + (ch - 25 * Math.min(cw / 24, ch / 27)) / 2) / ch)]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
   };
   const fr = at[g.style] ?? [[0.5, 0.5]];
   const pts: [number, number][] = [];

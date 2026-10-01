@@ -12,7 +12,7 @@ export interface PresetDef {
   settings: Partial<GenerationSettings> & Pick<GenerationSettings, 'category' | 'motifs' | 'layout'>;
   geo?: Partial<GeoSettings>;
   showMotifs?: boolean;
-  tag?: 'geometric' | 'indian' | 'chintz';
+  tag?: 'geometric' | 'indian' | 'chintz' | 'bodo';
   texture?: Partial<TextureSettings>;
 }
 
@@ -263,6 +263,50 @@ PRESETS.push(
     id: 'ch-tribal-tossed', name: 'Tribal Motifs', description: 'Aztec diamonds, crosses and arrows.',
     palette: ['#C2562F', '#2F5D62', '#E2B254', '#1A1A1A', '#F4EBDD'], background: solid('#F4EBDD'), showMotifs: true,
     settings: { category: 'tribal', motifs: ['aztecDiamond', 'aztecCross', 'aztecArrow'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { aztecDiamond: [0, 1], aztecCross: [3], aztecArrow: [3, 0] }, rotationMode: '0', density: 55, scale: 110, variation: 0, seed: 7109 },
+  }),
+);
+
+const BD = (p: Omit<PresetDef, 'tag'>): PresetDef => ({ ...p, tag: 'bodo' });
+const DOKHONA = ['#F2B705', '#0F6B3A', '#C1121F', '#1B1B1B', '#FFF3D6'];
+const ARONAI = ['#B3121F', '#F2C230', '#0F5132', '#111111', '#FFFFFF'];
+PRESETS.push(
+  BD({
+    id: 'bd-dokhona-yellow', name: 'Dokhona Yellow', description: 'Green and red agor border on festive yellow.',
+    palette: DOKHONA, background: solid('#F2B705'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'agor', repeat: 6, aspect: 1.8, weight: 60, colors: [-1, 1, 2, 4, 1], outline: true },
+  }),
+  BD({
+    id: 'bd-aronai-red', name: 'Aronai Red', description: 'Gold pigeon-eye border on aronai red.',
+    palette: ARONAI, background: solid('#B3121F'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'agor', repeat: 5, aspect: 1.6, weight: 80, colors: [-1, 1, 2, 4, 1], outline: true },
+  }),
+  BD({
+    id: 'bd-gamsa-white', name: 'Gamsa White', description: 'White gamsa with green and red border, woven texture.',
+    palette: ['#FFFFFF', '#0F6B3A', '#C1121F', '#F2B705', '#1B1B1B'], background: solid('#FBFAF5'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'agor', repeat: 6, aspect: 2.2, weight: 40, colors: [-1, 1, 2, 3, 2], outline: true },
+    texture: { type: 'linen', amount: 35 },
+  }),
+  BD({
+    id: 'bd-green-dokhona', name: 'Bodo Green', description: 'Yellow agor on deep green with stars in the field.',
+    palette: ['#0F6B3A', '#F5C518', '#D62828', '#F7F3E8', '#1B1B1B'], background: solid('#0F6B3A'), showMotifs: true,
+    settings: { category: 'bodo', motifs: ['agorStar'], layout: 'cells', colorMode: 'byMotif', motifColors: { agorStar: [1] }, rotationMode: '0', variation: 0, scale: 70, seed: 8104 },
+    geo: { style: 'agor', repeat: 5, aspect: 1.9, weight: 60, colors: [-1, 1, 2, 3, 1], outline: false },
+  }),
+  BD({
+    id: 'bd-pharwo-megon', name: 'Pharwo Megon', description: 'Pigeon-eye diamonds and buti on yellow.',
+    palette: DOKHONA, background: solid('#F2B705'), showMotifs: true,
+    settings: { category: 'bodo', motifs: ['pharwoMegon', 'agorButi'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { pharwoMegon: [1], agorButi: [2] }, rotationMode: '0', density: 55, scale: 110, variation: 0, seed: 8105 },
+  }),
+  BD({
+    id: 'bd-hajw-bwigri', name: 'Hajw & Bwigri', description: 'Hills, plum flowers and peacocks on cream.',
+    palette: ARONAI, background: solid('#FFF3D6'), showMotifs: true,
+    settings: { category: 'bodo', motifs: ['hajwAgor', 'bwigriBibar', 'daoraiAgor'], layout: 'brick', colorMode: 'byMotif', motifColors: { hajwAgor: [2], bwigriBibar: [0], daoraiAgor: [0, 2] }, rotationMode: '0', density: 55, scale: 110, variation: 0, seed: 8106 },
+  }),
+  BD({
+    id: 'bd-woven-stripe', name: 'Agor Stripe', description: 'Diamond chains in woven rows, linen texture.',
+    palette: ['#0F6B3A', '#F5C518', '#D62828', '#F7F3E8', '#1B1B1B'], background: solid('#F7F3E8'), showMotifs: true,
+    settings: { category: 'bodo', motifs: ['agorChain', 'pharwoMegon'], layout: 'stripe', colorMode: 'byMotif', motifColors: { agorChain: [2], pharwoMegon: [0] }, rotationMode: '0', density: 60, scale: 100, variation: 0, seed: 8107 },
+    texture: { type: 'linen', amount: 40 },
   }),
 );
 

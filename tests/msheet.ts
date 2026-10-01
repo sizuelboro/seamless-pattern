@@ -1,6 +1,7 @@
 import { INDIAN_MOTIFS } from '../src/data/indianMotifs';
 import { CHINTZ_MOTIFS } from '../src/data/chintzMotifs';
-const SET = new URLSearchParams(location.search).get('set') === 'chintz' ? CHINTZ_MOTIFS : INDIAN_MOTIFS;
+import { BODO_MOTIFS } from '../src/data/bodoMotifs';
+const SET = new URLSearchParams(location.search).get('set') === 'chintz' ? CHINTZ_MOTIFS : new URLSearchParams(location.search).get('set') === 'bodo' ? BODO_MOTIFS : INDIAN_MOTIFS;
 import { drawMotifAt, resolvePalette } from '../src/engine/motifRenderer';
 const pals = [['#B5532F', '#1F5E4A', '#E3A33B', '#2B3A67', '#F3E9D2'], ['#8E1B1B', '#D4A23A', '#1E3F5A', '#C8553D', '#F4E3C1']];
 const root = document.getElementById('out')!; root.textContent = '';

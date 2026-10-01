@@ -10,7 +10,7 @@ export type StripeDirection = 'horizontal' | 'vertical';
 export type CategoryId =
   | 'floral' | 'botanical' | 'geometric' | 'abstract' | 'minimal' | 'vintage' | 'boho'
   | 'kids' | 'animal' | 'food' | 'travel' | 'wedding' | 'christmas' | 'halloween'
-  | 'tropical' | 'retro' | 'scandinavian' | 'islamic' | 'indian' | 'handdrawn' | 'chintz' | 'tribal';
+  | 'tropical' | 'retro' | 'scandinavian' | 'islamic' | 'indian' | 'handdrawn' | 'chintz' | 'tribal' | 'bodo';
 
 /** One motif instance. Coordinates are in tile pixels; (x, y) is the motif centre. */
 export interface PatternObject {
@@ -67,7 +67,7 @@ export interface Background {
 export type GeoStyle =
   | 'stripes' | 'pinstripe' | 'diagonal' | 'check' | 'gingham' | 'plaid'
   | 'harlequin' | 'argyle' | 'chevron' | 'scallop' | 'dots' | 'wave'
-  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands' | 'aztec';
+  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands' | 'aztec' | 'agor';
 export type GeoAccent = 'none' | 'dot' | 'sparkle' | 'star' | 'diamond' | 'flower';
 
 /** Geometric base layer, drawn between the background and the motifs. */

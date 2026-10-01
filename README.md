@@ -29,6 +29,10 @@ A seamless pattern generator built with React, TypeScript, Vite, Tailwind CSS an
   - **Print textures** over any pattern: distressed (worn block print), grain, linen, canvas —
     seeded vector geometry that repeats with the tile and exports to PNG and SVG.
   - 4 palettes (Chintz, Jacobean, Mulberry, Mesa) and 9 presets.
+- **Bodo Agor category**: 7 original woven-grid motifs inspired by Bodo dokhona agor
+  (pharwo megon, hajw agor, bwigri bibar, daorai agor, agor star, buti, chain), drawn as crisp
+  pixel-thread runs; a **Bodo Agor base style** (stripes, zigzags, pigeon-eye diamonds and field
+  butis like a dokhona border); 4 palettes (Dokhona, Aronai, Gamsa, Bodo Green) and 7 presets.
 - **Frames studio**: 12 parametric label shapes (Victorian, wavy, scallop, ticket, bracket,
   octagon, stepped, stamp, arch, rounded, oval, cloud) with double lines, offset shadow,
   ornaments and auto-fitting text; 7 page-border styles (checks, blocks, diamonds, dots,
