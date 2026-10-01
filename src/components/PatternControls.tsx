@@ -8,7 +8,7 @@ import { Segmented, Slider, cx } from './ui';
 
 type Update = (patch: Partial<GenerationSettings>, coalesce?: string) => void;
 
-export const LayoutModes = memo(function LayoutModes({ value, stripeDirection, onChange }: { value: GenerationSettings['layout']; stripeDirection: GenerationSettings['stripeDirection']; onChange: Update }) {
+export const LayoutModes = memo(function LayoutModes({ value, stripeDirection, onChange, s, palette }: { value: GenerationSettings['layout']; stripeDirection: GenerationSettings['stripeDirection']; onChange: Update; s?: GenerationSettings; palette?: string[] }) {
   return (
     <div className="space-y-2.5">
       <div role="radiogroup" aria-label="Layout mode" className="grid grid-cols-5 gap-1.5">
@@ -24,6 +24,23 @@ export const LayoutModes = memo(function LayoutModes({ value, stripeDirection, o
       {value === 'stripe' && (
         <Segmented label="Stripe direction" value={stripeDirection} onChange={(v) => onChange({ stripeDirection: v })}
           options={[{ value: 'horizontal', label: 'Horizontal' }, { value: 'vertical', label: 'Vertical' }]} />
+      )}
+      {value === 'vine' && s && (
+        <div className="space-y-3 rounded-lg border border-ink-200/80 p-2.5 dark:border-ink-800">
+          <Slider label="Stem thickness" value={s.vineWidth ?? 40} min={0} max={100} onChange={(v) => onChange({ vineWidth: v }, 'vineWidth')} hint="0 hides the vine stems" />
+          <Slider label="Curl" value={s.vineCurl ?? 50} min={0} max={100} onChange={(v) => onChange({ vineCurl: v }, 'vineCurl')} hint="How much the stems bow and curl into tendrils" />
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[12px] font-medium text-ink-600 dark:text-ink-300">Stem colour</span>
+            <div role="radiogroup" aria-label="Stem colour" className="flex flex-wrap justify-end gap-1">
+              <button type="button" role="radio" aria-checked={(s.vineColor ?? -1) < 0} title="Auto (dark ink)" onClick={() => onChange({ vineColor: -1 })}
+                className={cx('flex h-6 items-center rounded-md border px-1.5 text-[10px] font-semibold uppercase tracking-wide text-ink-600 transition dark:text-ink-300', (s.vineColor ?? -1) < 0 ? 'border-brand-500 ring-2 ring-brand-500/30' : 'border-ink-200 dark:border-ink-700')}>Auto</button>
+              {(palette ?? []).map((c, i) => (
+                <button key={i} type="button" role="radio" aria-checked={s.vineColor === i} title={c} onClick={() => onChange({ vineColor: i })}
+                  className={cx('h-6 w-6 rounded-md border transition', s.vineColor === i ? 'border-white ring-2 ring-brand-500' : 'border-black/10 hover:scale-110')} style={{ background: c }} />
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

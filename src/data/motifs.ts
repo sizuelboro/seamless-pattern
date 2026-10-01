@@ -401,7 +401,8 @@ export const MOTIFS: MotifDef[] = [
 ];
 
 import { INDIAN_MOTIFS } from './indianMotifs';
-MOTIFS.push(...INDIAN_MOTIFS);
+import { CHINTZ_MOTIFS } from './chintzMotifs';
+MOTIFS.push(...INDIAN_MOTIFS, ...CHINTZ_MOTIFS);
 
 export const MOTIF_MAP: Record<string, MotifDef> = Object.fromEntries(MOTIFS.map((x) => [x.id, x]));
 
@@ -418,6 +419,8 @@ export const MOTIF_GROUPS: { id: string; label: string; motifs: string[] }[] = [
   { id: 'tropical', label: 'Tropical', motifs: ['monstera', 'hibiscus', 'palm', 'pineapple', 'leaf'] },
   { id: 'boho', label: 'Boho', motifs: ['arch', 'bohoSun', 'cactus', 'feather', 'blob', 'rainbow'] },
   { id: 'ornamental', label: 'Ornamental', motifs: ['eightStar', 'quatrefoil', 'rosette', 'lattice', 'paisley', 'lotus', 'mandala', 'scandiFlower'] },
+  { id: 'chintz', label: 'Chintz & damask', motifs: ['chintzFan', 'chintzPeony', 'chintzRosette', 'pomegranate', 'carnation', 'chintzLeaf', 'curlLeaf', 'berrySprig', 'chintzBud', 'fernSprig', 'damaskPaisley', 'damaskLotus'] },
+  { id: 'tribal', label: 'Tribal', motifs: ['aztecDiamond', 'aztecArrow', 'aztecCross'] },
   { id: 'indian', label: 'Indian', motifs: ['buta', 'kairi', 'mughalFlower', 'lotusBloom', 'lotusTop', 'marigold', 'rangoli', 'mihrab', 'royalElephant', 'peacock', 'parrot', 'diya', 'kalash', 'ajrakhStar', 'kolam', 'bandhani', 'templeBell', 'paisley', 'lotus', 'mandala'] },
   { id: 'retro', label: 'Retro & hand-drawn', motifs: ['starburst', 'flowerPower', 'sparkle', 'squiggle', 'scribble', 'triDots', 'brush'] },
 ];

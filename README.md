@@ -18,6 +18,17 @@ A seamless pattern generator built with React, TypeScript, Vite, Tailwind CSS an
   bandhani, temple bell), 5 Indian base styles (Mughal ogee trellis, jali, bandhani, ikat,
   ethnic bands), a **Fit base** layout that drops one motif into every cell / arch of the base,
   6 palettes (Mughal, Rajwada, Kalamkari, Ajrakh, Haldi-Mehndi, Peacock) and 11 presets.
+- **Chintz, damask & tribal**: 15 more original motifs (chintz fan flower, peony, exotic bloom,
+  pomegranate, carnation, serrated & curl leaves, berry sprig, bud, fern, damask paisley and lotus,
+  Aztec diamond / arrow / cross).
+  - **Vine layout**: a seeded web of S-curved stems that wraps across every tile edge, with
+    flowers on the nodes, leaves, tendrils and buds along the stems and sprigs filling the ground
+    (stem thickness, curl and colour controls).
+  - **Damask layout**: mirror-symmetric centrepiece + paired ornaments in half-drop.
+  - **Aztec base style**: stepped medallions, hourglass triangles, arrow and sawtooth borders.
+  - **Print textures** over any pattern: distressed (worn block print), grain, linen, canvas —
+    seeded vector geometry that repeats with the tile and exports to PNG and SVG.
+  - 4 palettes (Chintz, Jacobean, Mulberry, Mesa) and 9 presets.
 - **Frames studio**: 12 parametric label shapes (Victorian, wavy, scallop, ticket, bracket,
   octagon, stepped, stamp, arch, rounded, oval, cloud) with double lines, offset shadow,
   ornaments and auto-fitting text; 7 page-border styles (checks, blocks, diamonds, dots,

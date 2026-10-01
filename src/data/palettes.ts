@@ -21,6 +21,10 @@ export const PALETTES: PalettePreset[] = [
   { id: 'ajrakh', name: 'Ajrakh', colors: ['#1E2A4A', '#A3242C', '#111111', '#F2EBDD', '#C9A227'] },
   { id: 'haldi', name: 'Haldi-Mehndi', colors: ['#F2B705', '#4C7A34', '#E86A33', '#FFF4D6', '#8C2F39'] },
   { id: 'peacock', name: 'Peacock', colors: ['#0F6E73', '#1B3B6F', '#D9A441', '#F5EBDD', '#7FB069'] },
+  { id: 'chintz', name: 'Chintz', colors: ['#D9483B', '#3E6E8E', '#6E8B4E', '#E8A65D', '#6B4A3A'] },
+  { id: 'jacobean', name: 'Jacobean', colors: ['#E25B5B', '#E9C46A', '#7FA88E', '#3D6E7A', '#F1E6D2'] },
+  { id: 'mulberry', name: 'Mulberry', colors: ['#8E2F55', '#B5557A', '#D9C7A7', '#5A1E36', '#EADFC8'] },
+  { id: 'mesa', name: 'Mesa', colors: ['#1A1A1A', '#C2562F', '#E2B254', '#2F5D62', '#F4EBDD'] },
   { id: 'halloween', name: 'Halloween', colors: ['#F28C28', '#7B4AA3', '#F6E7C1', '#1A1423', '#4E8A3E'] },
 ];
 

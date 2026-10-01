@@ -1,5 +1,7 @@
 import type { ExportFormat, PatternState } from '../types/pattern';
-import { renderTile, objectRadius, wrappedOffsets, gradientGeometry } from './seamlessRenderer';
+import { renderTile, objectRadius, wrappedOffsets, gradientGeometry, vineColor } from './seamlessRenderer';
+import { vinePath } from './vineEngine';
+import { buildTexture } from './textureEngine';
 import { getMotif, resolvePalette, roleColor } from './motifRenderer';
 import { mod } from './random';
 import { buildGeo, geoOpsToSvg } from './geoPattern';
@@ -125,6 +127,14 @@ export function buildSvg(state: PatternState, o: Pick<ExportOptions, 'width' | '
 
   if (state.geo?.enabled) body.push(geoOpsToSvg(buildGeo(state.geo, state.palette, W, H)));
 
+  if (state.showMotifs !== false && state.settings.layout === 'vine' && (state.settings.vineWidth ?? 40) > 0) {
+    const v = vinePath(state.settings);
+    const [stems, tendrils] = v.d.split('|');
+    const col = vineColor(state, rp.ink);
+    if (stems) body.push(`<path d="${stems}" fill="none" stroke="${col}" stroke-width="${n(v.sw)}" stroke-linecap="round" stroke-linejoin="round"/>`);
+    if (tendrils) body.push(`<path d="${tendrils}" fill="none" stroke="${col}" stroke-width="${n(v.tw)}" stroke-linecap="round" stroke-linejoin="round"/>`);
+  }
+
   for (const obj of state.showMotifs === false ? [] : state.objects) {
     if (hidden.has(obj.type)) continue;
     const motif = getMotif(obj.type);
@@ -153,6 +163,22 @@ export function buildSvg(state: PatternState, o: Pick<ExportOptions, 'width' | '
       const t = `translate(${n(x + kx * W)} ${n(y + ky * H)}) rotate(${n(obj.rotation)})${obj.flipX ? ' scale(-1 1)' : ''} scale(${n(s)}) translate(-50 -50)`;
       const op = obj.opacity < 0.999 ? ` opacity="${n(obj.opacity)}"` : '';
       body.push(`<use href="#${symId}" xlink:href="#${symId}" transform="${t}"${op}/>`);
+    }
+  }
+
+  if (state.texture && state.texture.type !== 'none') {
+    const erase = !!o.transparent || bg.type === 'transparent';
+    const bgStart = !o.transparent && bg.type !== 'transparent' ? 1 : 0;
+    for (const op of buildTexture(state.texture, W, H)) {
+      if (op.bgPaint && erase) {
+        defs.push(`<mask id="tex" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="#fff"/><path d="${op.d}" fill="#000"/></mask>`);
+        const inner = body.splice(bgStart);
+        body.push(`<g mask="url(#tex)">${inner.join('')}</g>`);
+      } else if (op.bgPaint) {
+        body.push(`<path d="${op.d}" fill="${bg.type === 'solid' ? bg.color : 'url(#bg)'}"/>`);
+      } else {
+        body.push(`<path d="${op.d}" fill="${op.fill}"${op.alpha != null && op.alpha < 1 ? ` fill-opacity="${op.alpha}"` : ''}/>`);
+      }
     }
   }
 

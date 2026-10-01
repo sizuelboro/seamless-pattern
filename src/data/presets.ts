@@ -1,6 +1,7 @@
 import { generatePattern } from '../engine/patternGenerator';
-import type { Background, GenerationSettings, GeoSettings, PatternState } from '../types/pattern';
+import type { Background, GenerationSettings, GeoSettings, PatternState, TextureSettings } from '../types/pattern';
 import { DEFAULT_GEO, geoAnchors } from '../engine/geoPattern';
+import { DEFAULT_TEXTURE } from '../engine/textureEngine';
 
 export interface PresetDef {
   id: string;
@@ -11,7 +12,8 @@ export interface PresetDef {
   settings: Partial<GenerationSettings> & Pick<GenerationSettings, 'category' | 'motifs' | 'layout'>;
   geo?: Partial<GeoSettings>;
   showMotifs?: boolean;
-  tag?: 'geometric' | 'indian';
+  tag?: 'geometric' | 'indian' | 'chintz';
+  texture?: Partial<TextureSettings>;
 }
 
 const NOSTALGIA = ['#6E2B33', '#E3A7B4', '#A8C0D2', '#6F7D4C', '#F1E4CE'];
@@ -211,6 +213,59 @@ PRESETS.push(
   }),
 );
 
+const CH = (p: Omit<PresetDef, 'tag'>): PresetDef => ({ ...p, tag: 'chintz' });
+PRESETS.push(
+  CH({
+    id: 'ch-chintz-garden', name: 'Chintz Garden', description: 'Fan flowers and exotic blooms on a winding vine.',
+    palette: ['#D9483B', '#3E6E8E', '#6E8B4E', '#E8A65D', '#6B4A3A'], background: solid('#FBF3E6'), showMotifs: true,
+    settings: { category: 'chintz', motifs: ['chintzFan', 'chintzRosette', 'chintzPeony', 'chintzLeaf', 'berrySprig', 'chintzBud'], layout: 'vine', colorMode: 'byMotif', motifColors: { chintzFan: [0], chintzRosette: [1], chintzPeony: [3, 0], chintzLeaf: [2], berrySprig: [0, 1], chintzBud: [0, 3] }, rotationMode: '0', density: 65, scale: 100, variation: 35, vineWidth: 35, vineCurl: 60, vineColor: 4, seed: 7101 },
+  }),
+  CH({
+    id: 'ch-jacobean', name: 'Jacobean Vine', description: 'Carnations, pomegranates and curling leaves.',
+    palette: ['#E25B5B', '#E9C46A', '#7FA88E', '#3D6E7A', '#F1E6D2'], background: solid('#F6EEDF'), showMotifs: true,
+    settings: { category: 'chintz', motifs: ['carnation', 'pomegranate', 'chintzRosette', 'curlLeaf', 'chintzLeaf', 'chintzBud'], layout: 'vine', colorMode: 'byMotif', motifColors: { carnation: [0], pomegranate: [0, 3], chintzRosette: [3], curlLeaf: [2, 3], chintzLeaf: [2], chintzBud: [1, 0] }, rotationMode: '0', density: 60, scale: 105, variation: 30, vineWidth: 30, vineCurl: 75, vineColor: 3, seed: 7102 },
+  }),
+  CH({
+    id: 'ch-indigo-linen', name: 'Indigo Linen Chintz', description: 'Ivory vine flowers on indigo, linen texture.',
+    palette: ['#F3E9D8', '#E2A55B', '#9DB6A1', '#C9634B', '#D9CBB3'], background: solid('#22324F'), showMotifs: true,
+    settings: { category: 'chintz', motifs: ['chintzPeony', 'chintzFan', 'chintzLeaf', 'berrySprig'], layout: 'vine', colorMode: 'byMotif', motifColors: { chintzPeony: [0, 3], chintzFan: [3], chintzLeaf: [2], berrySprig: [1] }, rotationMode: '0', density: 55, scale: 95, variation: 30, vineWidth: 30, vineCurl: 50, vineColor: 4, seed: 7103 },
+    texture: { type: 'linen', amount: 45 },
+  }),
+  CH({
+    id: 'ch-mulberry-block', name: 'Mulberry Block Print', description: 'One-colour florals and paisley, worn print.',
+    palette: ['#8E2F55', '#E9DFC6'], background: solid('#E9DFC6'), showMotifs: true,
+    settings: { category: 'chintz', motifs: ['damaskPaisley', 'chintzPeony', 'carnation', 'chintzBud', 'berrySprig', 'fernSprig'], layout: 'random', colorMode: 'byMotif', motifColors: { damaskPaisley: [0], chintzPeony: [0], carnation: [0], chintzBud: [0], berrySprig: [0], fernSprig: [0] }, rotationMode: 'custom', rotationMin: -35, rotationMax: 35, density: 92, scale: 135, variation: 45, seed: 7104 },
+    texture: { type: 'distressed', amount: 60 },
+  }),
+  CH({
+    id: 'ch-damask-paisley', name: 'Damask Paisley', description: 'Mirror-symmetric lotus and paisley in half-drop.',
+    palette: ['#E8566C', '#7FA392', '#F2B33D', '#3E5C5A', '#F5F0E1'], background: solid('#ECEBDD'), showMotifs: true,
+    settings: { category: 'chintz', motifs: ['damaskLotus', 'damaskPaisley', 'chintzBud', 'carnation', 'berrySprig'], layout: 'damask', colorMode: 'byMotif', motifColors: { damaskLotus: [0], damaskPaisley: [1], chintzBud: [0], carnation: [2], berrySprig: [0] }, density: 60, scale: 100, variation: 0, seed: 7105 },
+  }),
+  CH({
+    id: 'ch-damask-mono', name: 'Mulberry Damask', description: 'Two-tone damask with fine paper grain.',
+    palette: ['#5A1E36', '#E9DFC6'], background: solid('#E9DFC6'), showMotifs: true,
+    settings: { category: 'chintz', motifs: ['damaskLotus', 'damaskPaisley', 'carnation', 'chintzBud', 'fernSprig'], layout: 'damask', colorMode: 'byMotif', motifColors: { damaskLotus: [0], damaskPaisley: [0], carnation: [0], chintzBud: [0], fernSprig: [0] }, density: 70, scale: 100, variation: 0, seed: 7106 },
+    texture: { type: 'grain', amount: 50 },
+  }),
+  CH({
+    id: 'ch-aztec-mono', name: 'Aztec Mono', description: 'Black and white tribal medallion bands.',
+    palette: ['#111111', '#FFFFFF'], background: solid('#FFFFFF'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aztec', repeat: 4, aspect: 1.7, weight: 70, colors: [-1, 0, 0, 0, 0] },
+  }),
+  CH({
+    id: 'ch-aztec-mesa', name: 'Aztec Mesa', description: 'Terracotta, ochre and teal tribal bands on canvas.',
+    palette: ['#1A1A1A', '#C2562F', '#E2B254', '#2F5D62', '#F4EBDD'], background: solid('#F4EBDD'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aztec', repeat: 4, aspect: 1.7, weight: 70, colors: [-1, 1, 0, 2, 3] },
+    texture: { type: 'canvas', amount: 40 },
+  }),
+  CH({
+    id: 'ch-tribal-tossed', name: 'Tribal Motifs', description: 'Aztec diamonds, crosses and arrows.',
+    palette: ['#C2562F', '#2F5D62', '#E2B254', '#1A1A1A', '#F4EBDD'], background: solid('#F4EBDD'), showMotifs: true,
+    settings: { category: 'tribal', motifs: ['aztecDiamond', 'aztecCross', 'aztecArrow'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { aztecDiamond: [0, 1], aztecCross: [3], aztecArrow: [3, 0] }, rotationMode: '0', density: 55, scale: 110, variation: 0, seed: 7109 },
+  }),
+);
+
 export const GALLERY_PRESETS = PRESETS.filter((p) => p.id !== 'botanical-meadow');
 export const PRESET_MAP = Object.fromEntries(PRESETS.map((p) => [p.id, p]));
 
@@ -229,6 +284,7 @@ export function stateFromPreset(p: PresetDef, overrides: Partial<GenerationSetti
     edited: false,
     geo,
     showMotifs: p.showMotifs ?? true,
+    texture: { ...DEFAULT_TEXTURE, ...(p.texture ?? {}) },
   };
 }
 

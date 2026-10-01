@@ -29,6 +29,8 @@ export const CATEGORIES: CategoryDef[] = [
   { id: 'scandinavian', name: 'Scandinavian', motifs: ['scandiFlower', 'tulip', 'heart', 'leaf', 'triangle', 'dot'], layout: 'brick', palette: 'neutral', background: '#F7F4EF' },
   { id: 'islamic', name: 'Islamic', motifs: ['eightStar', 'quatrefoil', 'rosette', 'lattice'], layout: 'checker', palette: 'tropical', background: '#F4EEDF' },
   { id: 'indian', name: 'Indian Heritage', motifs: ['buta', 'mughalFlower', 'lotusBloom', 'marigold', 'peacock', 'royalElephant', 'rangoli', 'mihrab', 'paisley'], layout: 'halfdrop', palette: 'mughal', background: '#F3E9D2' },
+  { id: 'chintz', name: 'Chintz & Damask', motifs: ['chintzFan', 'chintzRosette', 'chintzPeony', 'pomegranate', 'carnation', 'chintzLeaf', 'berrySprig', 'chintzBud'], layout: 'vine', palette: 'chintz', background: '#FBF3E6' },
+  { id: 'tribal', name: 'Tribal', motifs: ['aztecDiamond', 'aztecArrow', 'aztecCross'], layout: 'halfdrop', palette: 'mesa', background: '#F4EBDD' },
   { id: 'handdrawn', name: 'Hand-drawn', motifs: ['squiggle', 'scribble', 'sparkle', 'triDots', 'brush', 'leaf'], layout: 'tossed', palette: 'earth', background: '#FAF6EF' },
 ];
 

@@ -1,6 +1,6 @@
 export type LayoutMode =
   | 'random' | 'grid' | 'brick' | 'hex' | 'halfdrop'
-  | 'mirror' | 'radial' | 'tossed' | 'stripe' | 'checker' | 'cells';
+  | 'mirror' | 'radial' | 'tossed' | 'stripe' | 'checker' | 'cells' | 'vine' | 'damask';
 
 export type RotationMode = 'random' | '0' | '45' | '90' | '180' | 'custom';
 export type BackgroundType = 'solid' | 'linear' | 'radial' | 'transparent';
@@ -10,7 +10,7 @@ export type StripeDirection = 'horizontal' | 'vertical';
 export type CategoryId =
   | 'floral' | 'botanical' | 'geometric' | 'abstract' | 'minimal' | 'vintage' | 'boho'
   | 'kids' | 'animal' | 'food' | 'travel' | 'wedding' | 'christmas' | 'halloween'
-  | 'tropical' | 'retro' | 'scandinavian' | 'islamic' | 'indian' | 'handdrawn';
+  | 'tropical' | 'retro' | 'scandinavian' | 'islamic' | 'indian' | 'handdrawn' | 'chintz' | 'tribal';
 
 /** One motif instance. Coordinates are in tile pixels; (x, y) is the motif centre. */
 export interface PatternObject {
@@ -49,6 +49,12 @@ export interface GenerationSettings {
   motifColors?: Record<string, number[]>;
   tileWidth: number;
   tileHeight: number;
+  /** Vine layout: stem thickness 0 – 100 (0 hides the stems). */
+  vineWidth?: number;
+  /** Vine layout: how much the stems bow and curl, 0 – 100. */
+  vineCurl?: number;
+  /** Vine layout: palette index for stems (-1 = auto dark ink). */
+  vineColor?: number;
 }
 
 export interface Background {
@@ -61,7 +67,7 @@ export interface Background {
 export type GeoStyle =
   | 'stripes' | 'pinstripe' | 'diagonal' | 'check' | 'gingham' | 'plaid'
   | 'harlequin' | 'argyle' | 'chevron' | 'scallop' | 'dots' | 'wave'
-  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands';
+  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands' | 'aztec';
 export type GeoAccent = 'none' | 'dot' | 'sparkle' | 'star' | 'diamond' | 'flower';
 
 /** Geometric base layer, drawn between the background and the motifs. */
@@ -94,6 +100,18 @@ export interface PatternState {
   geo?: GeoSettings;
   /** Draw the motif layer (default true). */
   showMotifs?: boolean;
+  /** Optional print texture drawn over everything (absent in older saves). */
+  texture?: TextureSettings;
+}
+
+export type TextureType = 'none' | 'distressed' | 'grain' | 'linen' | 'canvas';
+export interface TextureSettings {
+  type: TextureType;
+  /** Strength 0 – 100. */
+  amount: number;
+  /** Grain size 25 – 300 %. */
+  scale: number;
+  seed: number;
 }
 
 export interface SavedPattern {

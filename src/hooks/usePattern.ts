@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import type { Background, GenerationSettings, GeoSettings, GeoStyle, PatternObject, PatternState } from '../types/pattern';
+import type { Background, GenerationSettings, GeoSettings, GeoStyle, PatternObject, PatternState, TextureSettings } from '../types/pattern';
+import { DEFAULT_TEXTURE } from '../engine/textureEngine';
 import { DEFAULT_GEO, GEO_STYLES, GEO_MAP, GEO_ACCENTS, geoWithStyle, geoAnchors } from '../engine/geoPattern';
 import { useHistory } from './useHistory';
 import { generatePattern } from '../engine/patternGenerator';
@@ -12,7 +13,7 @@ import { randomPalette } from '../utils/colors';
 
 const GEN_KEYS: (keyof GenerationSettings)[] = [
   'category', 'motifs', 'layout', 'density', 'scale', 'rotationMode', 'rotationMin', 'rotationMax',
-  'spacing', 'variation', 'opacity', 'seed', 'stripeDirection', 'colorMode', 'motifColors', 'tileWidth', 'tileHeight',
+  'spacing', 'variation', 'opacity', 'seed', 'stripeDirection', 'colorMode', 'motifColors', 'tileWidth', 'tileHeight', 'vineCurl',
 ];
 
 /** Motif anchors from the geometric base, used by the "Fit base" layout. */
@@ -42,7 +43,7 @@ export function withSettings(state: PatternState, patch: Partial<GenerationSetti
   return { ...state, settings, objects: generatePattern(settings, keep, anchorsFor(state, settings)), edited: false };
 }
 
-const LAYOUTS: LayoutMode[] = ['random', 'grid', 'brick', 'hex', 'halfdrop', 'mirror', 'radial', 'tossed', 'stripe', 'checker', 'cells'];
+const LAYOUTS: LayoutMode[] = ['random', 'grid', 'brick', 'hex', 'halfdrop', 'mirror', 'radial', 'tossed', 'stripe', 'checker', 'cells', 'vine', 'damask'];
 const ROTATIONS: RotationMode[] = ['random', '0', '45', '90', '180', 'custom'];
 
 export function randomGeo(paletteSize: number, avoid?: GeoStyle): GeoSettings {
@@ -90,7 +91,7 @@ export function usePattern(initial: () => PatternState) {
 
     selectCategory: (id: GenerationSettings['category']) => set((s) => {
       const cat = CATEGORY_MAP[id];
-      return withSettings({ ...s, presetId: null }, { category: id, motifs: [...cat.motifs], motifColors: undefined, colorMode: 'mixed' });
+      return withSettings({ ...s, presetId: null }, { category: id, motifs: [...cat.motifs], motifColors: undefined, colorMode: 'mixed', ...(id === 'chintz' ? { layout: 'vine' as const } : {}) });
     }),
 
     toggleMotif: (type: string) => set((s) => {
@@ -137,6 +138,9 @@ export function usePattern(initial: () => PatternState) {
     setGeoStyle: (style: GeoStyle) => set((s) => regenIfFitted({ ...s, geo: geoWithStyle({ ...(s.geo ?? DEFAULT_GEO), enabled: true }, style) })),
 
     setShowMotifs: (on: boolean) => set((s) => ({ ...s, showMotifs: on })),
+
+    setTexture: (patch: Partial<TextureSettings>, coalesce?: string) =>
+      set((s) => ({ ...s, texture: { ...(s.texture ?? DEFAULT_TEXTURE), ...patch } }), { coalesce }),
 
     /** New random geometric look: style, proportions, accent and colour slots. */
     randomizeGeo: () => set((s) => regenIfFitted({ ...s, geo: randomGeo(s.palette.length, s.geo?.style) })),

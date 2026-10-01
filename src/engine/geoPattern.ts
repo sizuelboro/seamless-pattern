@@ -12,7 +12,7 @@
 import type { GeoSettings, GeoStyle, GeoAccent } from '../types/pattern';
 import { mod } from './random';
 
-export interface GeoOp { d: string; fill?: string; stroke?: string; sw?: number; alpha?: number }
+export interface GeoOp { d: string; fill?: string; stroke?: string; sw?: number; alpha?: number; rule?: 'evenodd' }
 
 /** Colour slots: 0 base (-1 = use background), 1 main, 2 line, 3 accent, 4 alternate. */
 export interface GeoStyleMeta {
@@ -43,6 +43,7 @@ export const GEO_STYLES: GeoStyleMeta[] = [
   { id: 'bandhani', name: 'Bandhani', hint: 'Tie-dye dot clusters', roles: [[0, 'Base'], [1, 'Dots'], [2, 'Dot centres'], [3, 'Accent']], outline: 'Dot centres', accent: true, defaults: { repeat: 7, aspect: 1, weight: 55, outline: true } },
   { id: 'ikat', name: 'Ikat', hint: 'Feathered diamonds', roles: [[0, 'Base'], [1, 'Diamond'], [2, 'Inner'], [3, 'Accent']], accent: true, rotate: 'transpose', defaults: { repeat: 5, aspect: 1.6, weight: 85 } },
   { id: 'bands', name: 'Ethnic bands', hint: 'Temple, diamond and check borders', roles: [[0, 'Base'], [1, 'Bands'], [2, 'Temples'], [3, 'Diamonds']], rotate: 'transpose', defaults: { repeat: 6, aspect: 1.2, weight: 60 } },
+  { id: 'aztec', name: 'Aztec', hint: 'Tribal medallions with arrow and sawtooth borders', roles: [[0, 'Base'], [1, 'Main'], [2, 'Arrows'], [3, 'Accent']], rotate: 'transpose', defaults: { repeat: 4, aspect: 1.7, weight: 70 } },
   { id: 'wave', name: 'Waves', hint: 'Wavy ribbons', roles: [[0, 'Base'], [1, 'Wave'], [2, 'Pinline']], outline: 'Pinline', rotate: 'transpose', defaults: { repeat: 4, aspect: 0.5, weight: 45 } },
 ];
 export const GEO_MAP = Object.fromEntries(GEO_STYLES.map((s) => [s.id, s])) as Record<GeoStyle, GeoStyleMeta>;
@@ -443,6 +444,69 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
       fill(b1, 1); fill(tri, 2); fill(dm, 3);
       break;
     }
+    case 'aztec': {
+      const mn = pb(), ar = pb(), ac = pb(), cut = pb();
+      const k = 0.55 + wt * 0.45;
+      // horizontal rules (full width so they meet across cells)
+      for (let j = J0; j <= J1; j++) {
+        const y0 = j * ch;
+        for (const [y, h] of [[0, 0.03], [0.255, 0.012], [0.733, 0.012], [0.97, 0.03]] as const) mn.rect(left, y0 + y * ch, right - left, h * ch);
+      }
+      each((x0, y0) => {
+        const Y = (f: number, flip: boolean) => y0 + (flip ? 1 - f : f) * ch;
+        for (const flip of [false, true]) {
+          // small diamonds row
+          for (let t = 0; t < 4; t++) {
+            const cx = x0 + ((t + 0.5) * cw) / 4, cy = Y(0.075, flip), hx = cw / 16, hy = ch * 0.03;
+            ac.poly([[cx, cy - hy], [cx + hx, cy], [cx, cy + hy], [cx - hx, cy]]);
+          }
+          // sawtooth pointing into the band
+          for (let t = 0; t < 8; t++) {
+            const xa = x0 + (t * cw) / 8, xb = xa + cw / 8;
+            mn.poly([[xa, Y(0.115, flip)], [xb, Y(0.115, flip)], [(xa + xb) / 2, Y(0.16, flip)]]);
+          }
+          // arrow band: chevrons pointing right on top, left on the bottom
+          for (let t = 0; t < 4; t++) {
+            const cx = x0 + ((t + 0.5) * cw) / 4, cy = Y(0.205, flip), hx = cw / 22, hy = ch * 0.022, dir = flip ? -1 : 1;
+            for (const o of [-1.1, 0.1]) {
+              const bx = cx + o * hx * 2 * dir;
+              ar.poly([[bx, cy - hy], [bx + hx * dir, cy - hy], [bx + hx * 2 * dir, cy], [bx + hx * dir, cy + hy], [bx, cy + hy], [bx + hx * dir, cy]]);
+            }
+          }
+        }
+        // central medallion: stepped diamonds
+        const cx = x0 + cw / 2, cy = y0 + ch / 2, rx = cw * 0.44 * k, ry = ch * 0.2 * k;
+        const step = (sx: number, sy: number, steps: number) => {
+          const h = 1 / (2 * steps + 1), st = (1 - h) / steps;
+          const q: [number, number][] = [[h, -1]];
+          for (let t = 1; t <= steps; t++) { q.push([h + (t - 1) * st, -1 + t * st]); q.push([h + t * st, -1 + t * st]); }
+          const pts: [number, number][] = [];
+          for (let r = 0; r < 4; r++) for (const [x, y] of q) { let X = x, Yy = y; for (let u = 0; u < r; u++) [X, Yy] = [-Yy, X]; pts.push([cx + X * sx, cy + Yy * sy]); }
+          return pts;
+        };
+        // outer ring (even-odd so the background shows through), then a solid core
+        cut.poly(step(rx, ry, 5)); cut.poly(step(rx * 0.74, ry * 0.74, 4));
+        mn.poly(step(rx * 0.5, ry * 0.5, 3));
+        ac.poly(step(rx * 0.26, ry * 0.26, 2));
+        // hourglass of big triangles between medallions (on the cell edge)
+        const hw = cw * 0.17, top = y0 + ch * 0.27, bot = y0 + ch * 0.73, mid = y0 + ch / 2;
+        mn.poly([[x0 - hw, top], [x0 + hw, top], [x0, mid - ch * 0.03]]);
+        mn.poly([[x0 - hw, bot], [x0 + hw, bot], [x0, mid + ch * 0.03]]);
+        ac.poly([[x0, mid - ch * 0.05], [x0 + cw * 0.04, mid], [x0, mid + ch * 0.05], [x0 - cw * 0.04, mid]]);
+        // teeth along the main band edges
+        for (let t = 0; t < 6; t++) {
+          const xa = x0 + cw * 0.2 + (t * cw * 0.6) / 6, xb = xa + (cw * 0.6) / 6;
+          if (t === 2 || t === 3) continue;
+          ar.poly([[xa, top], [xb, top], [(xa + xb) / 2, top + ch * 0.05]]);
+          ar.poly([[xa, bot], [xb, bot], [(xa + xb) / 2, bot - ch * 0.05]]);
+        }
+        accents.push([cx, cy]);
+      });
+      fill(mn, 1);
+      { const c1 = col(1); if (c1 && !cut.empty) ops.push({ d: cut.d, fill: c1, rule: 'evenodd' }); }
+      fill(ar, 2); fill(ac, 3);
+      break;
+    }
     case 'wave': {
       const amp = ch * 0.16, th = ch * wt;
       const a = pb(), l = pb();
@@ -513,7 +577,7 @@ export function geoAnchors(g: GeoSettings, W: number, H: number): { pts: [number
   const at: Record<string, [number, number][]> = {
     ogee: g.outline ? [[0.5, 0]] : [[0, 0.5]], ikat: [[0, 0]], check: [[wt / 2, wt / 2]], stripes: [[wt + (1 - wt) / 2, 0.5]],
     pinstripe: [[wt / 2, 0.5]], gingham: [[wt + (1 - wt) / 2, wt + (1 - wt) / 2]], plaid: [[wt * 0.3, wt * 0.3]],
-    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
+    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], aztec: [[0, 0.5]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
   };
   const fr = at[g.style] ?? [[0.5, 0.5]];
   const pts: [number, number][] = [];
@@ -531,7 +595,7 @@ export function drawGeoOps(ctx: CanvasRenderingContext2D | OffscreenCanvasRender
   for (const op of ops) {
     const p = new Path2D(op.d);
     ctx.globalAlpha = op.alpha ?? 1;
-    if (op.fill) { ctx.fillStyle = op.fill; ctx.fill(p); }
+    if (op.fill) { ctx.fillStyle = op.fill; ctx.fill(p, op.rule ?? 'nonzero'); }
     if (op.stroke) { ctx.strokeStyle = op.stroke; ctx.lineWidth = op.sw ?? 1; ctx.lineJoin = 'miter'; ctx.lineCap = 'butt'; ctx.stroke(p); }
   }
   ctx.globalAlpha = 1;
@@ -540,6 +604,7 @@ export function drawGeoOps(ctx: CanvasRenderingContext2D | OffscreenCanvasRender
 export function geoOpsToSvg(ops: GeoOp[]): string {
   return ops.map((op) => {
     const a = [`d="${op.d}"`, `fill="${op.fill ?? 'none'}"`];
+    if (op.rule) a.push(`fill-rule="${op.rule}"`);
     if (op.alpha != null && op.alpha < 1) a.push(`fill-opacity="${op.alpha}"`);
     if (op.stroke) a.push(`stroke="${op.stroke}"`, `stroke-width="${n(op.sw ?? 1)}"`, 'stroke-linejoin="miter"', 'stroke-linecap="butt"');
     return `<path ${a.join(' ')}/>`;

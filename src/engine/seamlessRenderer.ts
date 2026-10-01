@@ -2,6 +2,8 @@ import type { Background, PatternObject, PatternState } from '../types/pattern';
 import { drawMotifAt, resolvePalette, type Ctx2D, type ResolvedPalette } from './motifRenderer';
 import { mod } from './random';
 import { buildGeo, drawGeoOps } from './geoPattern';
+import { vinePath } from './vineEngine';
+import { buildTexture } from './textureEngine';
 
 export interface RenderOptions {
   /** Skip drawing the background (export "transparent"). */
@@ -86,6 +88,12 @@ function backgroundGradient(ctx: Ctx2D, bg: Background, W: number, H: number): C
   return grad;
 }
 
+/** Stem colour for the vine layout. */
+export function vineColor(state: PatternState, ink: string): string {
+  const i = state.settings.vineColor ?? -1;
+  return i >= 0 && state.palette.length ? state.palette[i % state.palette.length] : ink;
+}
+
 /** Render the exact repeating unit at any output resolution. */
 export function renderTile(ctx: Ctx2D, state: PatternState, outW: number, outH: number, opts: RenderOptions = {}) {
   const W = state.settings.tileWidth, H = state.settings.tileHeight;
@@ -100,11 +108,31 @@ export function renderTile(ctx: Ctx2D, state: PatternState, outW: number, outH: 
   }
   if (opts.drawMotifs !== false && state.showMotifs !== false) {
     const rp = resolvePalette(state.palette);
+    if (state.settings.layout === 'vine' && (state.settings.vineWidth ?? 40) > 0) {
+      const v = vinePath(state.settings, opts.offsetX ?? 0, opts.offsetY ?? 0);
+      const [stems, tendrils] = v.d.split('|');
+      ctx.strokeStyle = vineColor(state, rp.ink);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      if (stems) { ctx.lineWidth = v.sw; ctx.stroke(new Path2D(stems)); }
+      if (tendrils) { ctx.lineWidth = v.tw; ctx.stroke(new Path2D(tendrils)); }
+    }
     const hidden = state.hiddenTypes.length ? new Set(state.hiddenTypes) : null;
     for (const raw of state.objects) {
       const o = opts.override && opts.override.id === raw.id ? opts.override : raw;
       if (hidden?.has(o.type)) continue;
       renderPatternObject(ctx, o, W, H, rp, { wrap: opts.wrap, offsetX: opts.offsetX, offsetY: opts.offsetY });
+    }
+  }
+  if (state.texture && state.texture.type !== 'none' && opts.drawMotifs !== false) {
+    const erase = !!opts.transparent || state.background.type === 'transparent';
+    for (const op of buildTexture(state.texture, W, H, opts.offsetX ?? 0, opts.offsetY ?? 0)) {
+      const p = new Path2D(op.d);
+      if (op.bgPaint) {
+        if (erase) { ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = '#000'; }
+        else ctx.fillStyle = state.background.type === 'solid' ? state.background.color : backgroundGradient(ctx, state.background, W, H);
+      } else { ctx.fillStyle = op.fill; ctx.globalAlpha = op.alpha ?? 1; }
+      ctx.fill(p);
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
     }
   }
   ctx.restore();

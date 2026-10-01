@@ -1,5 +1,7 @@
 import type { GenerationSettings, PatternObject } from '../types/pattern';
 import { createRng, mod, type Rng } from './random';
+import { vineNetwork } from './vineEngine';
+import { LEAF_TYPES, SMALL_TYPES } from '../data/chintzMotifs';
 
 const MAX_OBJECTS = 1600;
 
@@ -94,6 +96,68 @@ const evenCount = (n: number) => Math.max(2, Math.round(n / 2) * 2);
 const count = (len: number, cell: number) => Math.max(1, Math.round(len / cell));
 
 const LAYOUTS: Record<GenerationSettings['layout'], (c: Ctx) => void> = {
+  vine(c) {
+    const net = vineNetwork(c.s);
+    const { W, H, rng } = c;
+    const m = c.s.motifs;
+    const leafT = m.filter((t) => LEAF_TYPES.has(t));
+    const small = m.filter((t) => SMALL_TYPES.has(t) && !LEAF_TYPES.has(t));
+    const big = m.filter((t) => !LEAF_TYPES.has(t) && !SMALL_TYPES.has(t));
+    const flowers = big.length ? big : small.length ? small : m;
+    const leaves = leafT.length ? leafT : ['chintzLeaf'];
+    const ci = () => rng.int(0, 99);
+    for (const l of net.leaves) push(c, l.x, l.y, rng.pick(leaves), ci(), { width: net.leaf, rotation: l.rot + (rng() - 0.5) * 16, flipX: l.flip, scale: sizeJitter(c, 0.3) });
+    const fillers = small.length ? small : [];
+    if (fillers.length) {
+      for (const t of net.tips) {
+        const a = ((t.rot - 90) * Math.PI) / 180, sz = net.leaf * 0.85;
+        push(c, t.x + Math.cos(a) * sz * 0.42, t.y + Math.sin(a) * sz * 0.42, rng.pick(fillers), ci(), { width: sz, rotation: t.rot, scale: sizeJitter(c, 0.2) });
+      }
+      // fill the open ground with sprigs, clear of flowers, leaves and stems
+      const taken: [number, number, number][] = [
+        ...net.nodes.map(([x, y]) => [x, y, net.flower * 0.6] as [number, number, number]),
+        ...c.out.map((o) => [o.x, o.y, net.leaf * 0.5] as [number, number, number]),
+      ];
+      for (const sg of net.stems) for (let k = 0; k <= 16; k++) {
+        const t = k / 16, u = 1 - t;
+        taken.push([0, 1].map((q) => u * u * u * sg[0][q] + 3 * u * u * t * sg[1][q] + 3 * u * t * t * sg[2][q] + t * t * t * sg[3][q]).concat(net.leaf * 0.32) as [number, number, number]);
+      }
+      const fr = net.leaf * 0.5;
+      const want = Math.round((W * H) / (net.leaf * net.leaf * 5) * (c.s.density / 100));
+      for (let a = 0, placed = 0; a < want * 30 && placed < want; a++) {
+        const x = rng() * W, y = rng() * H;
+        let ok = true;
+        for (const [px, py, r] of taken) {
+          let dx = Math.abs(x - mod(px, W)); dx = Math.min(dx, W - dx);
+          let dy = Math.abs(y - mod(py, H)); dy = Math.min(dy, H - dy);
+          if (dx * dx + dy * dy < (r + fr) * (r + fr)) { ok = false; break; }
+        }
+        if (!ok) continue;
+        taken.push([x, y, fr]); placed++;
+        push(c, x, y, rng.pick(fillers), ci(), { width: net.leaf * 1.05, rotation: rotation(c, true), scale: sizeJitter(c, 0.3) });
+      }
+    }
+    for (const [x, y] of net.nodes) push(c, x, y, rng.pick(flowers), ci(), { width: net.flower, scale: sizeJitter(c, 0.35) });
+  },
+  damask(c) {
+    const cl = c.cell * 3.2;
+    const nx = evenCount(c.W / cl), ny = count(c.H, cl * 1.15);
+    const cw = c.W / nx, ch = c.H / ny, size = Math.min(cw, ch);
+    const m = c.s.motifs, at = (k: number) => m[k % m.length];
+    for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
+      const cx = (i + 0.5) * cw, cy = (j + 0.5 + (i % 2) * 0.5) * ch;
+      const k = i % 2 ? 1 : 0;
+      const pair = (dx: number, dy: number, type: string, w: number, rot: number, color: number) => {
+        push(c, cx - dx, cy + dy, type, color, { width: w, rotation: -rot, scale: 1 });
+        push(c, cx + dx, cy + dy, type, color, { width: w, rotation: rot, scale: 1, flipX: true });
+      };
+      push(c, cx, cy, k && m.length > 5 ? at(5) : at(0), 0, { width: size * 0.62, rotation: 0, scale: 1 });
+      if (m.length > 1) pair(cw * 0.3, ch * 0.02, at(1), size * 0.42, 16, 1);
+      if (m.length > 2) pair(cw * 0.25, ch * 0.36, at(2), size * 0.26, 8, 2);
+      if (m.length > 3) push(c, cx, cy - ch * 0.43, at(3), 3, { width: size * 0.2, rotation: 0, scale: 1 });
+      if (m.length > 4) pair(cw * 0.44, -ch * 0.3, at(4), size * 0.2, 0, 4);
+    }
+  },
   cells(c) {
     if (!c.anchors?.pts.length) { LAYOUTS.grid(c); return; }
     const m = c.s.motifs;
@@ -250,4 +314,6 @@ export const LAYOUT_OPTIONS: { id: GenerationSettings['layout']; label: string; 
   { id: 'stripe', label: 'Stripe', hint: 'Motif bands' },
   { id: 'checker', label: 'Checker', hint: 'Alternating cells' },
   { id: 'cells', label: 'Fit base', hint: 'One motif per geometric cell (block print)' },
+  { id: 'vine', label: 'Vine', hint: 'Chintz: flowers on a winding vine with leaves' },
+  { id: 'damask', label: 'Damask', hint: 'Mirror-symmetric ornament in half-drop' },
 ];

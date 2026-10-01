@@ -5,6 +5,7 @@ import { Section } from './ui';
 import { CategoryGrid } from './CategoryGrid';
 import { MotifLibrary } from './MotifLibrary';
 import { GeoPanel } from './GeoPanel';
+import { TexturePanel } from './TexturePanel';
 import { AdjustControls, LayoutModes, RotationControls, SeedControl, TileSizeControl } from './PatternControls';
 
 /** Left control panel: what the pattern is made of and how it's arranged. */
@@ -22,10 +23,13 @@ export const Sidebar = memo(function Sidebar({ state, actions }: { state: Patter
         <MotifLibrary selected={s.motifs} palette={state.palette} onToggle={actions.toggleMotif} onClear={() => actions.setMotifs([s.motifs[0]])} />
       </Section>
       <Section title="Layout">
-        <LayoutModes value={s.layout} stripeDirection={s.stripeDirection} onChange={actions.updateSettings} />
+        <LayoutModes value={s.layout} stripeDirection={s.stripeDirection} onChange={actions.updateSettings} s={s} palette={state.palette} />
       </Section>
       <Section title="Adjust">
         <AdjustControls s={s} onChange={actions.updateSettings} />
+      </Section>
+      <Section title={state.texture && state.texture.type !== 'none' ? `Texture · ${state.texture.type}` : 'Texture'}>
+        <TexturePanel state={state} actions={actions} />
       </Section>
       <Section title="Rotation">
         <RotationControls s={s} onChange={actions.updateSettings} />

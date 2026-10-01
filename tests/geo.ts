@@ -5,6 +5,10 @@ import { drawBackground } from '../src/engine/seamlessRenderer';
 import { drawMotifAt, resolvePalette } from '../src/engine/motifRenderer';
 import { GEO_STYLES, GEO_MAP, buildGeo, drawGeoOps, geoGrid } from '../src/engine/geoPattern';
 import type { PatternState, GeoSettings } from '../src/types/pattern';
+import { vineNetwork, stemPoints } from '../src/engine/vineEngine';
+import { buildTexture } from '../src/engine/textureEngine';
+import { vineColor } from '../src/engine/seamlessRenderer';
+import { generatePattern } from '../src/engine/patternGenerator';
 
 const out: string[] = [];
 const log = (s: string) => { out.push(s); document.getElementById('out')!.textContent = out.join('\n'); };
@@ -23,10 +27,34 @@ function bruteForce(state: PatternState, px: number, pxH: number): Uint8ClampedA
     if (bg.rows !== gr.rows * 3) throw new Error('grid mismatch');
     drawGeoOps(ctx, buildGeo(big, state.palette, W * 3, H * 3));
   }
+  if (state.showMotifs !== false && state.settings.layout === 'vine' && (state.settings.vineWidth ?? 40) > 0) {
+    // raw vine network drawn at every lattice offset (no wrap logic)
+    const net = vineNetwork(state.settings);
+    const stems = net.stems.map((sg) => `M${stemPoints(sg).map((p) => p.join(' ')).join('L')}`).join('');
+    const tend = net.tendrils.map((t) => `M${t.map((p) => p.join(' ')).join('L')}`).join('');
+    ctx.strokeStyle = vineColor(state, resolvePalette(state.palette).ink); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let kx = -1; kx <= 4; kx++) for (let ky = -1; ky <= 4; ky++) {
+      ctx.save(); ctx.translate(kx * W, ky * H);
+      ctx.lineWidth = net.stemWidth; ctx.stroke(new Path2D(stems));
+      if (tend) { ctx.lineWidth = net.stemWidth * 0.6; ctx.stroke(new Path2D(tend)); }
+      ctx.restore();
+    }
+  }
   if (state.showMotifs !== false) {
     const rp = resolvePalette(state.palette);
     for (const o of state.objects) for (let kx = -1; kx <= 4; kx++) for (let ky = -1; ky <= 4; ky++)
       drawMotifAt(ctx, o.type, o.x + kx * W, o.y + ky * H, Math.max(o.width, o.height) * o.scale, o.rotation, o.flipX, o.colorIndex, rp, o.opacity);
+  }
+  if (state.texture && state.texture.type !== 'none') {
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+      ctx.save(); ctx.translate(i * W, j * H); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
+      for (const op of buildTexture(state.texture, W, H)) {
+        ctx.globalAlpha = op.alpha ?? 1;
+        ctx.fillStyle = op.bgPaint ? (state.background.type === 'solid' ? state.background.color : '#000') : op.fill;
+        ctx.fill(new Path2D(op.d));
+      }
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
   }
   return ctx.getImageData(0, 0, c.width, c.height).data;
 }
@@ -63,13 +91,20 @@ async function test(name: string, state: PatternState) {
 
 (async () => {
   let all = true;
-  for (const p of PRESETS.filter((p) => !!p.geo)) all = (await test(`preset:${p.id}`, stateFromPreset(p))) && all;
+  for (const p of PRESETS.filter((p) => !!p.geo || p.settings.layout === 'vine' || !!p.texture)) all = (await test(`preset:${p.id}`, stateFromPreset(p))) && all;
   const base = stateFromPreset(PRESETS.find((p) => p.id === 'geo-harlequin')!);
   for (const st of GEO_STYLES) {
     const g = { ...base.geo!, ...GEO_MAP[st.id].defaults, style: st.id, colors: [-1, 1, 0, 3, 2] } as GeoSettings;
     all = (await test(`style:${st.id}`, { ...base, geo: g })) && all;
     all = (await test(`style:${st.id} +outline+accent+rotate`, { ...base, geo: { ...g, outline: true, accent: 'star', rotate: true } })) && all;
     all = (await test(`style:${st.id} non-square 1600x1000 r=5 a=1.7`, { ...base, settings: { ...base.settings, tileWidth: 1600, tileHeight: 1000 }, geo: { ...g, repeat: 5, aspect: 1.7, accent: 'flower', outline: true } })) && all;
+  }
+  // vine layout on a non-square tile, with every texture type
+  const vb = stateFromPreset(PRESETS.find((p) => p.id === 'ch-chintz-garden')!);
+  const vs = { ...vb.settings, tileWidth: 1600, tileHeight: 1000, seed: 99 };
+  all = (await test('vine non-square 1600x1000', { ...vb, settings: vs, objects: generatePattern(vs) })) && all;
+  for (const type of ['distressed', 'grain', 'linen', 'canvas'] as const) {
+    all = (await test(`texture:${type} non-square`, { ...vb, settings: vs, objects: generatePattern(vs), texture: { type, amount: 70, scale: 140, seed: 3 } })) && all;
   }
   log(`ALL ${all ? 'PASSED' : 'HAD FAILURES'}`);
   (window as unknown as { __done: boolean }).__done = true;

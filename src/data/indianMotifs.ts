@@ -6,19 +6,19 @@
 import type { MotifDef, MotifPart } from './motifs';
 import { circle, leaf, petals, star } from '../engine/geometry';
 
-type Pt = [number, number];
-type Seg = [Pt, Pt, Pt, Pt]; // cubic: p0 c1 c2 p1
+export type Pt = [number, number];
+export type Seg = [Pt, Pt, Pt, Pt]; // cubic: p0 c1 c2 p1
 const f = (v: number) => String(Math.round(v * 100) / 100);
 const m = (id: string, name: string, parts: MotifPart[]): MotifDef => ({ id, name, parts });
 
-const mapSeg = (segs: Seg[], fn: (p: Pt) => Pt): Seg[] => segs.map((s) => s.map(fn) as Seg);
-const segPath = (segs: Seg[]) => `M${f(segs[0][0][0])} ${f(segs[0][0][1])}` + segs.map(([, a, b, c]) => `C${f(a[0])} ${f(a[1])} ${f(b[0])} ${f(b[1])} ${f(c[0])} ${f(c[1])}`).join('') + 'Z';
-const bez = (s: Seg, t: number): Pt => {
+export const mapSeg = (segs: Seg[], fn: (p: Pt) => Pt): Seg[] => segs.map((s) => s.map(fn) as Seg);
+export const segPath = (segs: Seg[]) => `M${f(segs[0][0][0])} ${f(segs[0][0][1])}` + segs.map(([, a, b, c]) => `C${f(a[0])} ${f(a[1])} ${f(b[0])} ${f(b[1])} ${f(c[0])} ${f(c[1])}`).join('') + 'Z';
+export const bez = (s: Seg, t: number): Pt => {
   const u = 1 - t;
   return [0, 1].map((k) => u * u * u * s[0][k] + 3 * u * u * t * s[1][k] + 3 * u * t * t * s[2][k] + t * t * t * s[3][k]) as Pt;
 };
-const scaleAbout = (cx: number, cy: number, k: number, dx = 0, dy = 0) => ([x, y]: Pt): Pt => [cx + (x - cx) * k + dx, cy + (y - cy) * k + dy];
-const dotsAlong = (segs: Seg[], n: number, r: number, skipEnds = 0) => {
+export const scaleAbout = (cx: number, cy: number, k: number, dx = 0, dy = 0) => ([x, y]: Pt): Pt => [cx + (x - cx) * k + dx, cy + (y - cy) * k + dy];
+export const dotsAlong = (segs: Seg[], n: number, r: number, skipEnds = 0) => {
   const out: string[] = [];
   const total = segs.length * n;
   for (let i = skipEnds; i < total - skipEnds; i++) {
@@ -34,24 +34,24 @@ const rot = (cx: number, cy: number, deg: number) => ([x, y]: Pt): Pt => {
 };
 
 // Classic buta silhouette: round belly bottom-left, tip curling up and to the right.
-const PAISLEY: Seg[] = [
+export const PAISLEY: Seg[] = [
   [[48, 92], [26, 92], [14, 76], [16, 60]],
   [[16, 60], [18, 42], [34, 34], [48, 30]],
   [[48, 30], [60, 26], [66, 18], [62, 8]],
   [[62, 8], [78, 12], [88, 30], [84, 50]],
   [[84, 50], [80, 74], [66, 92], [48, 92]],
 ];
-const P_IN = mapSeg(PAISLEY, scaleAbout(50, 62, 0.72, -1, 3));
-const P_IN2 = mapSeg(PAISLEY, scaleAbout(48, 68, 0.44, -2, 2));
+export const P_IN = mapSeg(PAISLEY, scaleAbout(50, 62, 0.72, -1, 3));
+export const P_IN2 = mapSeg(PAISLEY, scaleAbout(48, 68, 0.44, -2, 2));
 
-const ring = (cx: number, cy: number, r: number, n: number, dr: number, phase = 0) =>
+export const ring = (cx: number, cy: number, r: number, n: number, dr: number, phase = 0) =>
   Array.from({ length: n }, (_, i) => { const a = ((i * 360) / n + phase - 90) * Math.PI / 180; return circle(cx + r * Math.cos(a), cy + r * Math.sin(a), dr); }).join('');
 
 const polyStr = (pts: Pt[]) => `M${pts.map(([x, y]) => `${f(x)} ${f(y)}`).join('L')}Z`;
 const lineStr = (pts: Pt[]) => `M${pts.map(([x, y]) => `${f(x)} ${f(y)}`).join('L')}`;
 
 /** Pointed petal from base (bx,by) toward angle with length & width — almond shape. */
-const almond = (bx: number, by: number, deg: number, len: number, w: number) => {
+export const almond = (bx: number, by: number, deg: number, len: number, w: number) => {
   const a = (deg * Math.PI) / 180, tx = bx + Math.cos(a) * len, ty = by + Math.sin(a) * len;
   return leaf(bx, by, tx, ty, w);
 };
