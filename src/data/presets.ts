@@ -269,6 +269,41 @@ PRESETS.push(
 const BD = (p: Omit<PresetDef, 'tag'>): PresetDef => ({ ...p, tag: 'bodo' });
 const DOKHONA = ['#F2B705', '#0F6B3A', '#C1121F', '#1B1B1B', '#FFF3D6'];
 const ARONAI = ['#B3121F', '#F2C230', '#0F5132', '#111111', '#FFFFFF'];
+const AR_ORANGE = ['#F07A12', '#0B5D2A', '#111111', '#C1121F', '#F2C230'];
+const AR_YELLOW = ['#F6E31A', '#D62012', '#E8590C', '#111111', '#FFFFFF'];
+PRESETS.push(
+  BD({
+    id: 'ar-aronai-print', name: 'Aronai Print', description: 'White aronai panel — fishbone teeth, sunburst medallions and paisleys on red.',
+    palette: ARONAI, background: solid('#C8161D'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronai', repeat: 2, aspect: 1.1, weight: 60, colors: [-1, 4, 4, 4, 4], outline: true },
+  }),
+  BD({
+    id: 'ar-aronai-gold', name: 'Aronai Gold', description: 'Gold and green aronai print on red.',
+    palette: ARONAI, background: solid('#B3121F'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronai', repeat: 2, aspect: 1.1, weight: 70, colors: [-1, 1, 1, 4, 2], outline: true },
+  }),
+  BD({
+    id: 'ar-weave-orange', name: 'Aronai Weave Orange', description: 'Green and black woven teeth and rosette chain on orange.',
+    palette: AR_ORANGE, background: solid('#F07A12'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronaiweave', repeat: 2, aspect: 1, weight: 60, colors: [-1, 1, 2, 1, 2], outline: true },
+    texture: { type: 'linen', amount: 30 },
+  }),
+  BD({
+    id: 'ar-weave-yellow', name: 'Aronai Weave Yellow', description: 'Red woven aronai on bright yellow.',
+    palette: AR_YELLOW, background: solid('#F6E31A'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronaiweave', repeat: 2, aspect: 1, weight: 80, colors: [-1, 1, 2, 1, 1], outline: true },
+  }),
+  BD({
+    id: 'ar-motifs', name: 'Aronai Motifs', description: 'Sunbursts, paisleys and arrow stars tossed on red.',
+    palette: ARONAI, background: solid('#B3121F'), showMotifs: true,
+    settings: { category: 'bodo', motifs: ['aronaiSun', 'aronaiPaisley', 'aronaiArrow'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { aronaiSun: [1, 4], aronaiPaisley: [4, 1], aronaiArrow: [1, 4] }, rotationMode: '0', density: 55, scale: 100, variation: 0, seed: 8121 },
+  }),
+  BD({
+    id: 'ar-weave-bands', name: 'Aronai Bands', description: 'Horizontal woven aronai bands, green on yellow.',
+    palette: DOKHONA, background: solid('#F2B705'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronaiweave', repeat: 3, aspect: 1, weight: 50, colors: [-1, 1, 2, 2, 1], outline: true, rotate: true },
+  }),
+);
 PRESETS.push(
   BD({
     id: 'bd-dokhona-yellow', name: 'Dokhona Yellow', description: 'Green and red agor border on festive yellow.',

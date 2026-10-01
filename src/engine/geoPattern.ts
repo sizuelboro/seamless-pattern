@@ -12,6 +12,7 @@
 import type { GeoSettings, GeoStyle, GeoAccent } from '../types/pattern';
 import { mod } from './random';
 import { dd, runs, type Lit } from './pixelGrid';
+import { fishbone, paisley, starFlower, sunburst } from './aronaiShapes';
 
 export interface GeoOp { d: string; fill?: string; stroke?: string; sw?: number; alpha?: number; rule?: 'evenodd' }
 
@@ -46,6 +47,8 @@ export const GEO_STYLES: GeoStyleMeta[] = [
   { id: 'bands', name: 'Ethnic bands', hint: 'Temple, diamond and check borders', roles: [[0, 'Base'], [1, 'Bands'], [2, 'Temples'], [3, 'Diamonds']], rotate: 'transpose', defaults: { repeat: 6, aspect: 1.2, weight: 60 } },
   { id: 'aztec', name: 'Aztec', hint: 'Tribal medallions with arrow and sawtooth borders', roles: [[0, 'Base'], [1, 'Main'], [2, 'Arrows'], [3, 'Accent']], rotate: 'transpose', defaults: { repeat: 4, aspect: 1.7, weight: 70 } },
   { id: 'agor', name: 'Bodo Agor', hint: 'Dokhona border: stripes, zigzags and a pigeon-eye diamond on a counted thread grid', roles: [[0, 'Base'], [1, 'Border'], [2, 'Zigzag'], [3, 'Eye'], [4, 'Field buti']], outline: 'Field buti', rotate: 'transpose', defaults: { repeat: 6, aspect: 1.8, weight: 60, outline: true } },
+  { id: 'aronai', name: 'Bodo Aronai', hint: 'Aronai panel: fishbone teeth, flower-diamond chain, sunburst medallions with paisleys', roles: [[0, 'Base'], [1, 'Teeth & medallion'], [2, 'Lines'], [3, 'Flowers'], [4, 'Paisleys & leaves']], outline: 'Paisleys', rotate: 'transpose', defaults: { repeat: 2, aspect: 1.1, weight: 60, outline: true } },
+  { id: 'aronaiweave', name: 'Aronai Weave', hint: 'Woven aronai: serrated net teeth and a chain of rosette diamonds', roles: [[0, 'Base'], [1, 'Teeth'], [2, 'Lines'], [3, 'Diamond chain'], [4, 'Rosettes']], outline: 'Rosettes', rotate: 'transpose', defaults: { repeat: 2, aspect: 1, weight: 60, outline: true } },
   { id: 'wave', name: 'Waves', hint: 'Wavy ribbons', roles: [[0, 'Base'], [1, 'Wave'], [2, 'Pinline']], outline: 'Pinline', rotate: 'transpose', defaults: { repeat: 4, aspect: 0.5, weight: 45 } },
 ];
 export const GEO_MAP = Object.fromEntries(GEO_STYLES.map((s) => [s.id, s])) as Record<GeoStyle, GeoStyleMeta>;
@@ -491,6 +494,104 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
       fill(P1, 1); fill(P2, 2); fill(P4, 4); fill(P3, 3); void P5;
       break;
     }
+    case 'aronai': {
+      // Printed aronai panel: fishbone teeth, diamond-flower chain and lines on both sides,
+      // a sunburst medallion with four paisleys in the middle, star + arrow leaves between.
+      const T1 = pb(), L2 = pb(), LR = pb(), F3 = pb(), P4 = pb(), PS = pb();
+      const add = (b: PathBuilder, list: [number, number][][]) => { for (const p of list) b.poly(p); };
+      const nT = Math.max(1, Math.round(ch / (cw * 0.12))), th = ch / nT;
+      const k = wt > 0.7 ? 6 : wt > 0.35 ? 5 : 4, tf = 0.35 + wt * 0.35;
+      const lw2 = Math.max(cw * 0.006, 0.6);
+      each((x0, y0) => {
+        const X = (u: number) => x0 + u * cw;
+        for (const side of [0, 1]) {
+          const S = (u: number) => X(side ? 1 - u : u);
+          for (let t = 0; t < nT; t++) {
+            const yc = y0 + (t + (side ? 0 : 0.5)) * th;
+            add(T1, fishbone(S(0.012), S(0.15), yc, th * 0.49, k, tf));
+            // diamond with a four-petal flower
+            const dc = y0 + (t + 0.5) * th, hw = cw * 0.036, hh = th * 0.47;
+            L2.polyline([[S(0.21), dc - hh], [S(0.21) + hw, dc], [S(0.21), dc + hh], [S(0.21) - hw, dc], [S(0.21), dc - hh]]);
+            add(F3, starFlower(S(0.21), dc, Math.min(hw, hh) * 0.62, 4, Math.min(hw, hh) * 0.1, 0.55, 0));
+            // herringbone strip
+            const zx0 = S(0.268), zx1 = S(0.288);
+            for (const q of [0.25, 0.75]) { const yq = y0 + (t + q) * th, h = Math.min(th * 0.16, Math.abs(zx1 - zx0) * 0.8); L2.polyline([[zx0, yq - h], [zx1, yq + h * 0.2], [zx0, yq + h]]); }
+          }
+          for (const u of [0.155, 0.26, 0.296]) { const a = S(u), w = cw * (u === 0.155 ? 0.008 : 0.005); LR.rect(Math.min(a, a + (side ? -w : w)), y0 - ch * 0.01, w, ch * 1.02); }
+        }
+        // centre column
+        const cx = X(0.5), cy = y0 + ch / 2, R = Math.min(cw * 0.185, ch * 0.3);
+        const sb = sunburst(cx, cy, R, wt);
+        add(T1, sb.main); add(F3, sb.flower);
+        if (g.outline) {
+          const s = Math.min(cw * 0.062, ch * 0.09);
+          for (const fx of [-1, 1]) for (const fy of [-1, 1]) {
+            const p = paisley(cx + fx * cw * 0.118, cy + fy * (R + s * 0.85), s, -fx, -fy);
+            PS.poly(p.body[0]); PS.poly(p.body[1]); F3.poly(p.eye);
+          }
+        }
+        // between medallions: star flower with fishbone leaves pointing outwards
+        const r = Math.min(cw * 0.048, ch * 0.07);
+        add(F3, starFlower(cx, y0, r, 8, r * 0.2, 0.32, -Math.PI / 2 + Math.PI / 8));
+        for (const fx of [-1, 1]) add(P4, fishbone(cx + fx * cw * 0.185, cx + fx * r * 1.4, y0, r * 1.15, 5, tf));
+        // small chevrons above and below the star
+        for (const fy of [-1, 1]) for (let q = 0; q < 2; q++) {
+          const yy = y0 + fy * (r * (1.6 + q * 0.7)), w = r * 0.9;
+          L2.polyline([[cx - w, yy + fy * w * 0.6], [cx, yy], [cx + w, yy + fy * w * 0.6]]);
+        }
+      });
+      fill(T1, 1); fill(LR, 2); fill(P4, 4);
+      { const c = col(4); if (c && !PS.empty) ops.push({ d: PS.d, fill: c, rule: 'evenodd' }); }
+      stroke(L2, 2, lw2); fill(F3, 3);
+      break;
+    }
+    case 'aronaiweave': {
+      // Woven aronai (counted threads): serrated net-filled teeth, dotted lines and a chain of
+      // diamonds holding flower rosettes. 61 threads across, 24-row repeat.
+      const G = 61, C = 30, ux = cw / G;
+      const reps = Math.max(1, Math.round(ch / (24 * ux))), R = 24 * reps, uy = ch / R;
+      const net = wt > 0.75 ? 3 : 4;
+      const tooth = (x: number, yy: number): string | null => {
+        if (x < 1 || x > 12) return null;
+        const dy = Math.abs(yy - 12), lim = ((x - 1) * 12) / 11;
+        if (dy > lim + 0.01) return null;
+        if (dy > lim - 1.1 || x === 12) return '#';
+        if (wt < 0.25) return null;
+        return (x + yy) % net === 0 || (x - yy + 48) % net === 0 ? '#' : null;
+      };
+      const lit: Lit = (x, y) => {
+        const yy = y % 24;
+        if (x <= 12) return tooth(x, yy);
+        if (x >= G - 13) return tooth(G - 1 - x, (yy + 12) % 24);
+        if (x === 13 || x === 17 || x === G - 14 || x === G - 18) return '+';
+        if (x === 15 || x === G - 16) return yy % 2 === 0 ? '+' : null;
+        if (x < 18 || x > G - 19) return null;
+        const dx = x - C, dy = yy - 12, d = Math.abs(dx) + Math.abs(dy);
+        if (d === 12 || d === 11) return 'o';
+        if (d > 12) return dd(Math.abs(dx) - 12, Math.abs(dy) - 12) <= 3 ? '+' : null;
+        if (g.outline) {
+          if (d === 8) return '+';
+          if (d === 0 || d === 4) return '*';
+          if (d >= 2 && d <= 6 && (dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy))) return '*';
+          return null;
+        }
+        if (d === 6) return '+';
+        return d <= 2 ? '*' : null;
+      };
+      const map = runs(lit, 0, 0, G, R);
+      const B: Record<string, PathBuilder> = { '#': pb(), '+': pb(), o: pb(), '*': pb() };
+      const bl = 0.04;
+      each((x0, y0) => {
+        // cull runs outside the tile: keeps SVG exports small
+        for (const [kk, list] of map) for (const [x, y, l] of list) {
+          const X0 = x0 + x * ux, Y0 = y0 + y * uy, w = l * ux + ux * bl, h = uy * (1 + bl);
+          if (X0 + offx > BW || X0 + w + offx < 0 || Y0 + offy > BH || Y0 + h + offy < 0) continue;
+          B[kk].rect(X0, Y0, w, h);
+        }
+      });
+      fill(B['#'], 1); fill(B['+'], 2); fill(B.o, 3); fill(B['*'], 4);
+      break;
+    }
     case 'aztec': {
       const mn = pb(), ar = pb(), ac = pb(), cut = pb();
       const k = 0.55 + wt * 0.45;
@@ -624,7 +725,7 @@ export function geoAnchors(g: GeoSettings, W: number, H: number): { pts: [number
   const at: Record<string, [number, number][]> = {
     ogee: g.outline ? [[0.5, 0]] : [[0, 0.5]], ikat: [[0, 0]], check: [[wt / 2, wt / 2]], stripes: [[wt + (1 - wt) / 2, 0.5]],
     pinstripe: [[wt / 2, 0.5]], gingham: [[wt + (1 - wt) / 2, wt + (1 - wt) / 2]], plaid: [[wt * 0.3, wt * 0.3]],
-    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], aztec: [[0, 0.5]], agor: [[0.5, Math.min(0.95, (25 * Math.min(cw / 24, ch / 27) + (ch - 25 * Math.min(cw / 24, ch / 27)) / 2) / ch)]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
+    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], aztec: [[0, 0.5]], aronai: [[0.5, 0.5]], aronaiweave: [[0.5, 0.5]], agor: [[0.5, Math.min(0.95, (25 * Math.min(cw / 24, ch / 27) + (ch - 25 * Math.min(cw / 24, ch / 27)) / 2) / ch)]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
   };
   const fr = at[g.style] ?? [[0.5, 0.5]];
   const pts: [number, number][] = [];

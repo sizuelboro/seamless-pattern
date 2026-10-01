@@ -33,6 +33,10 @@ A seamless pattern generator built with React, TypeScript, Vite, Tailwind CSS an
   (pharwo megon, hajw agor, bwigri bibar, daorai agor, agor star, buti, chain), drawn as crisp
   pixel-thread runs; a **Bodo Agor base style** (stripes, zigzags, pigeon-eye diamonds and field
   butis like a dokhona border); 4 palettes (Dokhona, Aronai, Gamsa, Bodo Green) and 7 presets.
+  - **Bodo Aronai**: a printed *Aronai* base style (fishbone arrow teeth, flower-diamond chain,
+    herringbone lines, sunburst medallions with paisleys and arrow-leaf stars) and a woven
+    *Aronai Weave* style (serrated net-filled teeth and a chain of rosette diamonds); 3 motifs
+    (sunburst, paisley, arrows), 2 palettes (Aronai Orange, Aronai Yellow) and 6 presets.
 - **Frames studio**: 12 parametric label shapes (Victorian, wavy, scallop, ticket, bracket,
   octagon, stepped, stamp, arch, rounded, oval, cloud) with double lines, offset shadow,
   ornaments and auto-fitting text; 7 page-border styles (checks, blocks, diamonds, dots,

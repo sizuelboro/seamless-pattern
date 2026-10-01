@@ -5,6 +5,7 @@
  */
 import type { ColorRole, MotifDef, MotifPart } from './motifs';
 import { dd, runs, runsPath, type Lit } from '../engine/pixelGrid';
+import { fishbone, paisley, polyD, starFlower, sunburst } from '../engine/aronaiShapes';
 
 const ROLE: Record<string, ColorRole> = { '#': 'main', '+': 'accent', o: 'alt', '*': 'light' };
 
@@ -81,4 +82,13 @@ export const BODO_MOTIFS: MotifDef[] = [
     if (dd(x, y) === 0 || (x === 0 && Math.abs(y) <= 2)) return 'o';
     return null;
   }),
+  // Aronai sunburst — the big printed medallion: rays, rings and a star flower
+  (() => { const sb = sunburst(50, 50, 47, 0.6); return { id: 'aronaiSun', name: 'Aronai sunburst', parts: [{ d: polyD(sb.main), fill: 'main' as ColorRole }, { d: polyD(sb.flower), fill: 'accent' as ColorRole }] }; })(),
+  // Aronai paisley — curled leaf with an eye
+  (() => { const p = paisley(44, 64, 27); return { id: 'aronaiPaisley', name: 'Aronai paisley', parts: [{ d: polyD(p.body), fill: 'main' as ColorRole, rule: 'evenodd' as const }, { d: polyD([p.eye]), fill: 'accent' as ColorRole }] }; })(),
+  // Aronai arrow — star flower between two fishbone leaves
+  { id: 'aronaiArrow', name: 'Aronai arrows', parts: [
+    { d: polyD([...fishbone(3, 36, 50, 20, 5, 0.55), ...fishbone(97, 64, 50, 20, 5, 0.55)]), fill: 'main' },
+    { d: polyD(starFlower(50, 50, 13, 8, 2.6, 0.34)), fill: 'accent' },
+  ] },
 ];

@@ -28,6 +28,8 @@ export const PALETTES: PalettePreset[] = [
   { id: 'dokhona', name: 'Dokhona', colors: ['#F2B705', '#0F6B3A', '#C1121F', '#1B1B1B', '#FFF3D6'] },
   { id: 'aronai', name: 'Aronai', colors: ['#B3121F', '#F2C230', '#0F5132', '#111111', '#FFFFFF'] },
   { id: 'gamsa', name: 'Gamsa', colors: ['#FFFFFF', '#0F6B3A', '#C1121F', '#F2B705', '#1B1B1B'] },
+  { id: 'aronaiorange', name: 'Aronai Orange', colors: ['#F07A12', '#0B5D2A', '#111111', '#C1121F', '#F2C230'] },
+  { id: 'aronaiyellow', name: 'Aronai Yellow', colors: ['#F6E31A', '#D62012', '#E8590C', '#111111', '#FFFFFF'] },
   { id: 'bodogreen', name: 'Bodo Green', colors: ['#0F6B3A', '#F5C518', '#D62828', '#F7F3E8', '#1B1B1B'] },
   { id: 'halloween', name: 'Halloween', colors: ['#F28C28', '#7B4AA3', '#F6E7C1', '#1A1423', '#4E8A3E'] },
 ];
