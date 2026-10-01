@@ -23,7 +23,7 @@ interface Props {
 }
 
 const NAV: { id: AppView; label: string }[] = [
-  { id: 'generator', label: 'Generator' }, { id: 'patterns', label: 'My Patterns' }, { id: 'presets', label: 'Presets' },
+  { id: 'generator', label: 'Generator' }, { id: 'frames', label: 'Frames' }, { id: 'patterns', label: 'My Patterns' }, { id: 'presets', label: 'Presets' },
 ];
 
 export const Header = memo(function Header(p: Props) {
@@ -57,7 +57,7 @@ export const Header = memo(function Header(p: Props) {
         <IconButton label={p.theme === 'dark' ? 'Light mode' : 'Dark mode'} onClick={p.onToggleTheme}>{p.theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</IconButton>
         <IconButton label="Keyboard shortcuts" shortcut="?" onClick={p.onShortcuts} className="hidden lg:inline-flex"><Keyboard className="h-4 w-4" /></IconButton>
         {gen && <IconButton label="Settings panel" onClick={p.onToggleSettings} className="hidden md:inline-flex xl:hidden"><PanelRight className="h-4 w-4" /></IconButton>}
-        <Button variant="primary" onClick={p.onExport} className="ml-1.5 hidden sm:inline-flex"><Download className="h-3.5 w-3.5" /> Export</Button>
+        {p.view !== 'frames' && <Button variant="primary" onClick={p.onExport} className="ml-1.5 hidden sm:inline-flex"><Download className="h-3.5 w-3.5" /> Export</Button>}
       </div>
     </header>
   );

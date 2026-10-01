@@ -17,6 +17,7 @@ import { SelectionToolbar } from './components/SelectionToolbar';
 import { ExportModal } from './components/ExportModal';
 import { PresetGallery } from './components/PresetGallery';
 import { SavedPatterns } from './components/SavedPatterns';
+import { FramesView } from './components/FramesView';
 import { EmptyState } from './components/EmptyState';
 import { Mockups } from './components/Mockups';
 import { MobileNav, type MobileTab } from './components/MobileNav';
@@ -206,6 +207,7 @@ export default function App() {
 
   const onMobileTab = (t: MobileTab) => {
     if (t === 'patterns') { setView('patterns'); setMobileTab(null); return; }
+    if (t === 'frames') { setView('frames'); setMobileTab(null); return; }
     if (t === 'export') { openExport(); setMobileTab(null); return; }
     setView('generator');
     setMobileTab((cur) => (cur === t ? null : t));
@@ -330,12 +332,13 @@ export default function App() {
           </div>
         )}
 
+        {view === 'frames' && <FramesView patternPalette={state.palette} />}
         {view === 'presets' && (
           <div className="scroll-thin flex-1 overflow-y-auto"><PresetGallery onUse={applyPreset} /></div>
         )}
       </main>
 
-      <MobileNav active={view === 'patterns' ? 'patterns' : mobileTab} onSelect={onMobileTab} />
+      <MobileNav active={view === 'patterns' ? 'patterns' : view === 'frames' ? 'frames' : mobileTab} onSelect={onMobileTab} />
 
       <BottomSheet open={mobileTab === 'generate'} title="Generate" onClose={() => setMobileTab(null)}>
         <Sidebar state={state} actions={actions} />

@@ -1,0 +1,10 @@
+import { chromium } from 'playwright-core';
+const browser = await chromium.launch({ executablePath: process.env.CHROME, args: ['--no-sandbox'] });
+const page = await browser.newPage();
+page.on('pageerror', (e) => console.log('PAGEERROR', e.message));
+await page.goto('http://localhost:5179/tests/svg.html');
+await page.waitForFunction(() => window.__done === true, null, { timeout: 180000 });
+console.log(await page.textContent('#out'));
+const d = await page.evaluate(() => window.__diff); if (d) (await import('fs')).writeFileSync('/tmp/diff.png', Buffer.from(d.split(',')[1], 'base64'));
+await browser.close();
+process.exit(0);

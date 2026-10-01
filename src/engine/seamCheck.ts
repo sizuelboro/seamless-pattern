@@ -5,7 +5,7 @@ import { createCanvas, get2d } from '../utils/canvas';
 /**
  * Seam Check — two independent tests, neither of which assumes the renderer is correct.
  *
- * 1. Wrap test (motif layer). Render the tile A. Render the same pattern again with every
+ * 1. Wrap test (motif + geometric layers). Render the tile A. Render the same pattern again with every
  *    object shifted by half a tile (B). If the tile truly repeats, B must equal A rolled by
  *    half a tile, pixel for pixel. Objects that were cut at an edge in A sit whole in the
  *    middle of B, so any missing wrapped copy shows up as a mismatch.
@@ -22,7 +22,7 @@ export function runSeamCheck(state: PatternState, opts: { wrap?: boolean; resolu
   const actx = get2d(a), bctx = get2d(b), gctx = get2d(bg);
   renderTile(actx, state, w, h, { transparent: true, wrap: opts.wrap });
   renderTile(bctx, state, w, h, { transparent: true, wrap: opts.wrap, offsetX: W / 2, offsetY: H / 2 });
-  renderTile(gctx, state, w, h, { drawMotifs: false });
+  renderTile(gctx, state, w, h, { drawMotifs: false, drawGeo: false });
 
   const A = actx.getImageData(0, 0, w, h).data;
   const B = bctx.getImageData(0, 0, w, h).data;

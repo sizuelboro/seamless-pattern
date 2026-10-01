@@ -2,6 +2,7 @@ import type { ExportFormat, PatternState } from '../types/pattern';
 import { renderTile, objectRadius, wrappedOffsets, gradientGeometry } from './seamlessRenderer';
 import { getMotif, resolvePalette, roleColor } from './motifRenderer';
 import { mod } from './random';
+import { buildGeo, geoOpsToSvg } from './geoPattern';
 import { createCanvas, get2d } from '../utils/canvas';
 
 export const MIN_DIM = 16;
@@ -122,7 +123,9 @@ export function buildSvg(state: PatternState, o: Pick<ExportOptions, 'width' | '
     }
   }
 
-  for (const obj of state.objects) {
+  if (state.geo?.enabled) body.push(geoOpsToSvg(buildGeo(state.geo, state.palette, W, H)));
+
+  for (const obj of state.showMotifs === false ? [] : state.objects) {
     if (hidden.has(obj.type)) continue;
     const motif = getMotif(obj.type);
     const nCol = rp.colors.length;

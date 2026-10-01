@@ -10,7 +10,7 @@ await page.goto('http://localhost:5179/');
 await page.getByRole('button', { name: 'Start Creating' }).click();
 const zoomText = () => page.locator('footer button[aria-haspopup=menu]').textContent();
 const z0 = await zoomText();
-const box = await page.locator('canvas').first().boundingBox();
+const box = await page.locator('canvas[role=img]').first().boundingBox();
 await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
 await page.mouse.wheel(0, -400); await page.waitForTimeout(200);
 console.log('wheel zoom', z0, '->', await zoomText());

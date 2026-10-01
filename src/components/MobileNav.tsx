@@ -1,9 +1,9 @@
-import { Download, Eye, FolderOpen, Palette, SlidersHorizontal } from 'lucide-react';
+import { Download, Eye, FolderOpen, Frame, Palette, SlidersHorizontal } from 'lucide-react';
 import { cx } from './ui';
 
-export type MobileTab = 'generate' | 'patterns' | 'colors' | 'preview' | 'export';
+export type MobileTab = 'generate' | 'frames' | 'patterns' | 'colors' | 'preview' | 'export';
 const ITEMS: { id: MobileTab; label: string; icon: typeof Eye }[] = [
-  { id: 'generate', label: 'Generate', icon: SlidersHorizontal }, { id: 'patterns', label: 'Patterns', icon: FolderOpen },
+  { id: 'generate', label: 'Generate', icon: SlidersHorizontal }, { id: 'frames', label: 'Frames', icon: Frame }, { id: 'patterns', label: 'Patterns', icon: FolderOpen },
   { id: 'colors', label: 'Colors', icon: Palette }, { id: 'preview', label: 'Preview', icon: Eye }, { id: 'export', label: 'Export', icon: Download },
 ];
 

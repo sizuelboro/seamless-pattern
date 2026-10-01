@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import type { Background, GenerationSettings, PatternObject, PatternState } from '../types/pattern';
+import type { Background, GenerationSettings, GeoSettings, GeoStyle, PatternObject, PatternState } from '../types/pattern';
+import { DEFAULT_GEO, GEO_STYLES, GEO_MAP, GEO_ACCENTS, geoWithStyle } from '../engine/geoPattern';
 import { useHistory } from './useHistory';
 import { generatePattern } from '../engine/patternGenerator';
 import { createRng, mod, randomSeed } from '../engine/random';
@@ -31,6 +32,25 @@ export function withSettings(state: PatternState, patch: Partial<GenerationSetti
 
 const LAYOUTS: LayoutMode[] = ['random', 'grid', 'brick', 'hex', 'halfdrop', 'mirror', 'radial', 'tossed', 'stripe', 'checker'];
 const ROTATIONS: RotationMode[] = ['random', '0', '45', '90', '180', 'custom'];
+
+export function randomGeo(paletteSize: number, avoid?: GeoStyle): GeoSettings {
+  const rng = createRng(randomSeed());
+  const styles = GEO_STYLES.filter((g) => g.id !== avoid);
+  const meta = rng.pick(styles);
+  const idx = rng.shuffle(Array.from({ length: Math.max(2, paletteSize) }, (_, i) => i));
+  const base = rng.chance(0.5) ? -1 : idx[idx.length - 1];
+  const d = meta.defaults;
+  return {
+    ...DEFAULT_GEO, enabled: true, style: meta.id,
+    repeat: Math.max(2, Math.round((d.repeat ?? 6) * rng.range(0.6, 1.5))),
+    aspect: Math.round((d.aspect ?? 1) * (rng.chance(0.3) ? rng.pick([0.5, 1.5, 2]) : 1) * 100) / 100,
+    weight: meta.id === 'harlequin' || meta.id === 'argyle' ? rng.pick([100, 100, 80]) : rng.int(25, 65),
+    colors: [base, idx[0], idx[1 % idx.length], idx[2 % idx.length], idx[3 % idx.length]],
+    accent: meta.accent && rng.chance(0.45) ? rng.pick(GEO_ACCENTS.filter((a) => a.id !== 'none')).id : 'none',
+    rotate: !!meta.rotate && rng.chance(0.3),
+    outline: !!GEO_MAP[meta.id].outline && rng.chance(0.45),
+  };
+}
 
 export function usePattern(initial: () => PatternState) {
   const history = useHistory<PatternState>(initial, 50);
@@ -89,7 +109,8 @@ export function usePattern(initial: () => PatternState) {
       const palette = rng.chance(0.6) ? [...rng.pick(PALETTES).colors] : randomPalette(rng, rng.int(3, 5));
       const bgPick = rng.chance(0.75) ? rng.pick(BACKGROUND_PRESETS.filter((b) => b.name !== 'Black' && b.name !== 'Navy')).color : rng.pick(BACKGROUND_PRESETS).color;
       const motifs = rng.shuffle([...cat.motifs]).slice(0, rng.int(Math.min(3, cat.motifs.length), cat.motifs.length));
-      const next = withSettings({ ...s, presetId: null, name: 'Untitled pattern', palette, background: { ...s.background, type: 'solid', color: bgPick } }, {
+      const geoOn = rng.chance(0.35);
+      const next = withSettings({ ...s, presetId: null, name: 'Untitled pattern', palette, geo: geoOn ? randomGeo(palette.length) : { ...(s.geo ?? DEFAULT_GEO), enabled: false }, showMotifs: geoOn ? rng.chance(0.4) : true, background: { ...s.background, type: 'solid', color: bgPick } }, {
         category: cat.id, motifs, colorMode: 'mixed', motifColors: undefined,
         seed: randomSeed(), layout: rng.pick(LAYOUTS), rotationMode: rng.pick(ROTATIONS),
         rotationMin: -rng.int(5, 45), rotationMax: rng.int(5, 45),
@@ -97,6 +118,16 @@ export function usePattern(initial: () => PatternState) {
       });
       return next;
     }),
+
+    setGeo: (patch: Partial<GeoSettings>, coalesce?: string) =>
+      set((s) => ({ ...s, geo: { ...(s.geo ?? DEFAULT_GEO), ...patch } }), { coalesce }),
+
+    setGeoStyle: (style: GeoStyle) => set((s) => ({ ...s, geo: geoWithStyle({ ...(s.geo ?? DEFAULT_GEO), enabled: true }, style) })),
+
+    setShowMotifs: (on: boolean) => set((s) => ({ ...s, showMotifs: on })),
+
+    /** New random geometric look: style, proportions, accent and colour slots. */
+    randomizeGeo: () => set((s) => ({ ...s, geo: randomGeo(s.palette.length, s.geo?.style) })),
 
     regenerate: () => set((s) => ({ ...s, objects: generatePattern(s.settings, s.objects), edited: false })),
 

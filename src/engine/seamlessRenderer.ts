@@ -1,6 +1,7 @@
 import type { Background, PatternObject, PatternState } from '../types/pattern';
 import { drawMotifAt, resolvePalette, type Ctx2D, type ResolvedPalette } from './motifRenderer';
 import { mod } from './random';
+import { buildGeo, drawGeoOps } from './geoPattern';
 
 export interface RenderOptions {
   /** Skip drawing the background (export "transparent"). */
@@ -11,6 +12,8 @@ export interface RenderOptions {
   offsetX?: number;
   offsetY?: number;
   drawMotifs?: boolean;
+  /** Draw the geometric base layer (default true). */
+  drawGeo?: boolean;
   /** Replace objects by id without mutating state (live drag preview). */
   override?: PatternObject | null;
 }
@@ -92,7 +95,10 @@ export function renderTile(ctx: Ctx2D, state: PatternState, outW: number, outH: 
   ctx.setTransform(outW / W, 0, 0, outH / H, 0, 0);
   ctx.imageSmoothingEnabled = true;
   if (!opts.transparent) drawBackground(ctx, state.background, W, H);
-  if (opts.drawMotifs !== false) {
+  if (state.geo?.enabled && opts.drawGeo !== false) {
+    drawGeoOps(ctx, buildGeo(state.geo, state.palette, W, H, opts.offsetX ?? 0, opts.offsetY ?? 0));
+  }
+  if (opts.drawMotifs !== false && state.showMotifs !== false) {
     const rp = resolvePalette(state.palette);
     const hidden = state.hiddenTypes.length ? new Set(state.hiddenTypes) : null;
     for (const raw of state.objects) {

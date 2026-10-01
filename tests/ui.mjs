@@ -13,7 +13,7 @@ await page.getByRole('button', { name: 'Start Creating' }).click();
 await page.waitForTimeout(500);
 await shot('2-editor');
 // click on canvas center to select a motif (try several points)
-const box = await page.locator('canvas').first().boundingBox();
+const box = await page.locator('canvas[role=img]').first().boundingBox();
 let selected = false;
 for (const [fx, fy] of [[0.5,0.5],[0.45,0.4],[0.55,0.6],[0.4,0.55],[0.6,0.4],[0.35,0.35],[0.65,0.65]]) {
   await page.mouse.click(box.x + box.width*fx, box.y + box.height*fy);

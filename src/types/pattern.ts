@@ -58,6 +58,28 @@ export interface Background {
   direction: GradientDirection;
 }
 
+export type GeoStyle =
+  | 'stripes' | 'pinstripe' | 'diagonal' | 'check' | 'gingham' | 'plaid'
+  | 'harlequin' | 'argyle' | 'chevron' | 'scallop' | 'dots' | 'wave';
+export type GeoAccent = 'none' | 'dot' | 'sparkle' | 'star' | 'diamond' | 'flower';
+
+/** Geometric base layer, drawn between the background and the motifs. */
+export interface GeoSettings {
+  enabled: boolean;
+  style: GeoStyle;
+  /** Cells across the tile (integer, so the layer always repeats with the tile). */
+  repeat: number;
+  /** Cell height ÷ cell width. */
+  aspect: number;
+  /** Band / shape weight, 2 – 100. */
+  weight: number;
+  /** Palette index per colour slot: base (-1 = background), main, line, accent, alt. */
+  colors: number[];
+  accent: GeoAccent;
+  rotate: boolean;
+  outline: boolean;
+}
+
 export interface PatternState {
   name: string;
   presetId: string | null;
@@ -67,6 +89,10 @@ export interface PatternState {
   objects: PatternObject[];
   hiddenTypes: string[];
   edited: boolean;
+  /** Optional geometric base layer (absent in older saves). */
+  geo?: GeoSettings;
+  /** Draw the motif layer (default true). */
+  showMotifs?: boolean;
 }
 
 export interface SavedPattern {
@@ -80,7 +106,7 @@ export interface SavedPattern {
 
 export type RepeatMode = 1 | 2 | 3 | 4 | 'infinite';
 export type ExportFormat = 'png' | 'jpg' | 'webp' | 'svg';
-export type AppView = 'generator' | 'patterns' | 'presets';
+export type AppView = 'generator' | 'frames' | 'patterns' | 'presets';
 export type Backdrop = 'light' | 'dark' | 'checker';
 
 export interface SeamReport {

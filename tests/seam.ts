@@ -68,7 +68,8 @@ function variant(base: PatternState, patch: Partial<PatternState['settings']>, b
 
 (async () => {
   let all = true;
-  for (const p of PRESETS) all = (await test(`preset:${p.id}`, stateFromPreset(p))) && all;
+  // Geometric presets are verified by tests/geo.ts (its reference also draws the geo layer).
+  for (const p of PRESETS.filter((q) => q.tag !== 'geometric')) all = (await test(`preset:${p.id}`, stateFromPreset(p))) && all;
   const base = stateFromPreset(PRESETS[1]);
   const layouts: LayoutMode[] = ['random', 'grid', 'brick', 'hex', 'halfdrop', 'mirror', 'radial', 'tossed', 'stripe', 'checker'];
   for (const l of layouts) all = (await test(`layout:${l}`, variant(base, { layout: l }))) && all;

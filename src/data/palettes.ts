@@ -12,6 +12,9 @@ export const PALETTES: PalettePreset[] = [
   { id: 'autumn', name: 'Autumn', colors: ['#C2502E', '#E8963F', '#8C5E3C', '#5B3A29', '#D9B26F'] },
   { id: 'christmas', name: 'Christmas', colors: ['#C0392B', '#1E6F50', '#E5B94E', '#F4EFE6', '#0F3D2E'] },
   { id: 'wedding', name: 'Wedding', colors: ['#E8C4C0', '#C9A66B', '#9DB4A0', '#F6EEE6', '#7A6A5A'] },
+  { id: 'nostalgia', name: 'Nostalgia', colors: ['#6E2B33', '#E3A7B4', '#A8C0D2', '#6F7D4C', '#F1E4CE'] },
+  { id: 'parlour', name: 'Parlour', colors: ['#2E2233', '#8FA9C4', '#E9DCC4', '#B5485B', '#D7B46A'] },
+  { id: 'bistro', name: 'Bistro', colors: ['#5E7A45', '#F2C9C4', '#C2473B', '#F7EEDC', '#3B3A30'] },
   { id: 'halloween', name: 'Halloween', colors: ['#F28C28', '#7B4AA3', '#F6E7C1', '#1A1423', '#4E8A3E'] },
 ];
 
