@@ -1,0 +1,16 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: process.env.CHROME, args: ['--no-sandbox'] });
+const page = await (await b.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+const errs = []; page.on('pageerror', (e) => errs.push(e.message));
+await page.goto('http://localhost:5179/');
+await page.getByRole('button', { name: 'Start Creating' }).click();
+await page.getByRole('button', { name: 'Presets' }).first().click();
+await page.getByRole('button', { name: 'Use preset Aztec Mono' }).click();
+await page.waitForTimeout(600);
+await page.getByRole('radio', { name: 'None' }).first().scrollIntoViewIfNeeded();
+await page.screenshot({ path: '/tmp/u5-1.png' });
+await page.getByRole('radio', { name: 'None' }).first().click();
+await page.waitForTimeout(600);
+console.log('add base button:', await page.getByRole('button', { name: 'Add geometric base' }).count());
+await page.screenshot({ path: '/tmp/u5-2.png' });
+console.log(errs.join('\n') || 'no errors'); await b.close(); process.exit(0);

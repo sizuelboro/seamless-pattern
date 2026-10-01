@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
-import { Dices, Shapes } from 'lucide-react';
+import { Ban, Dices, Shapes } from 'lucide-react';
 import type { GeoSettings, GeoStyle, PatternState } from '../types/pattern';
 import type { PatternActions } from '../hooks/usePattern';
 import { DEFAULT_GEO, GEO_ACCENTS, GEO_MAP, GEO_STYLES, buildGeo, drawGeoOps, geoGrid } from '../engine/geoPattern';
@@ -54,6 +54,8 @@ export const GeoPanel = memo(function GeoPanel({ state, actions }: { state: Patt
   const grid = geoGrid(g, W, H);
   const set = actions.setGeo;
   const showMotifs = state.showMotifs !== false;
+  // Turning the base off must never leave an empty canvas.
+  const removeBase = () => { set({ enabled: false }); if (!showMotifs) actions.setShowMotifs(true); };
 
   if (!g.enabled) {
     return (
@@ -76,6 +78,13 @@ export const GeoPanel = memo(function GeoPanel({ state, actions }: { state: Patt
   return (
     <div className="space-y-3.5">
       <div role="radiogroup" aria-label="Geometric style" className="grid grid-cols-4 gap-1.5">
+        <button type="button" role="radio" aria-checked={false} title="No geometric base — motifs only" onClick={removeBase}
+          className="flex flex-col items-center gap-1 rounded-lg border border-ink-200/80 p-1 text-[10px] font-medium text-ink-600 transition hover:border-ink-300 dark:border-ink-800 dark:text-ink-300">
+          <span aria-hidden="true" className="flex h-[52px] w-[52px] items-center justify-center rounded-md border border-dashed border-ink-300 dark:border-ink-600">
+            <Ban className="h-5 w-5 text-ink-400" />
+          </span>
+          None
+        </button>
         {GEO_STYLES.map((s) => (
           <button key={s.id} type="button" role="radio" aria-checked={g.style === s.id} onClick={() => actions.setGeoStyle(s.id)} title={s.hint}
             className={cx('flex flex-col items-center gap-1 rounded-lg border p-1 text-[10px] font-medium transition',
@@ -138,7 +147,7 @@ export const GeoPanel = memo(function GeoPanel({ state, actions }: { state: Patt
 
       <div className="flex gap-2">
         <Button className="flex-1" onClick={actions.randomizeGeo}><Dices className="h-3.5 w-3.5" /> Surprise me</Button>
-        <Button variant="ghost" onClick={() => set({ enabled: false })}>Remove</Button>
+        <Button variant="ghost" onClick={removeBase}>Remove</Button>
       </div>
     </div>
   );
