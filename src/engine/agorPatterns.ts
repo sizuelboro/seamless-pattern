@@ -168,3 +168,49 @@ export function coin(dx: number, dy: number, R: number): Key {
   if (oct > R - 1.2) return '#';
   return dd(dx, dy) <= 1 ? '*' : null;
 }
+
+/**
+ * Hajw agor (jwmbaigra sadri) on a 40 × 100 thread cell: two herringbone hills pointing up with
+ * a spike tip, base line + dotted line, a chain of stepped eye medallions (diamond ring, red
+ * centre, side dots) linked by barred connectors, then the mirror image below. '~' = divider stripe.
+ */
+const hajwHW = (r: number) => 2 + Math.round((Math.max(r, 0) * 7) / 16);
+const medOut = [15, 15, 15, 15, 13, 13, 11, 11, 8, 8, 6, 6];
+const medIn = [12, 12, 12, 12, 10, 10, 7, 7, 4, 4, -1, -1];
+export function hajwSadri(x: number, y: number, divider: boolean, sp: number): string | null {
+  const A = Math.abs;
+  if (y > 49) y = 98 - y;
+  if (y < 0) return null;
+  const dx = ((x + 10) % 20) - 10; // hills centred at x = 10 and 30
+  if (y >= 4 && y <= 6) return dx === 0 ? '#' : null;
+  if (y >= 7 && y <= 10) return A(dx) <= 1 ? '#' : null;
+  if (y >= 11 && y <= 27) {
+    const r = y - 11, hw = hajwHW(r), a = A(dx);
+    if (a > hw) return null;
+    if (a >= hajwHW(r - 1) || a === hw || dx === 0) return '#';
+    const k = r - a;
+    return k > 0 && k % sp === 0 ? '#' : null;
+  }
+  if (y === 28) return A(dx) <= 9 ? '#' : null;
+  if (y === 30) return x % 2 === 1 ? '+' : null;
+  if (y === 31) return '+';
+  if (y === 33 || y === 34) return divider ? '~' : null;
+  if (y >= 38) {
+    const mx = x - 20, dy = y - 49, ay = A(dy), am = A(mx);
+    if (ay > 11) return null;
+    if (am <= medOut[ay] && am > medIn[ay]) return 'o';
+    if (am > 15) {
+      // connector between medallions (x = 0 / 40): solid bar with a barred bump in the middle
+      const cx = A(x < 20 ? x : x - 40);
+      if (ay <= 2) return 'o';
+      if (ay <= 4 && cx <= 1 && (cx === 0 || ay === 3)) return 'o';
+      return null;
+    }
+    const d = am + ay;
+    if (d <= 1) return '*';
+    if (d === 3 || (ay === 0 && am === 5) || (am === 0 && ay === 5)) return 'o';
+    if (ay <= 0 && (am === 8 || am === 9)) return 'o';
+    return null;
+  }
+  return null;
+}

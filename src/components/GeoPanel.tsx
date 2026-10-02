@@ -132,7 +132,7 @@ export const GeoPanel = memo(function GeoPanel({ state, actions }: { state: Patt
 
       <div className="space-y-1.5">
         <div className="text-[13px] font-medium text-ink-700 dark:text-ink-200">Colours</div>
-        {meta.roles.filter(([slot]) => slot !== 3 || (meta.accent && g.accent !== 'none') || g.style === 'plaid')
+        {meta.roles.filter(([slot]) => slot !== 3 || !meta.accent || g.accent !== 'none' || g.style === 'plaid')
           .filter(([slot]) => slot !== 4 || g.outline)
           .map(([slot, label]) => (
             <SlotPicker key={slot} label={label} value={g.colors[slot] ?? 0} palette={state.palette} allowBg={slot === 0} bg={bg}
