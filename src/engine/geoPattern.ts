@@ -13,6 +13,7 @@ import type { GeoSettings, GeoStyle, GeoAccent } from '../types/pattern';
 import { mod } from './random';
 import { dd, runs, type Lit } from './pixelGrid';
 import { fern, gourdChain, hill, rosette, type Key } from './agorPatterns';
+import { aronaiLeafGrid, LEAF_G, LEAF_R } from './aronaiLeaf';
 import { fishbone, paisley, starFlower, sunburst } from './aronaiShapes';
 
 export interface GeoOp { d: string; fill?: string; stroke?: string; sw?: number; alpha?: number; rule?: 'evenodd' }
@@ -55,6 +56,7 @@ export const GEO_STYLES: GeoStyleMeta[] = [
   { id: 'hajw', name: 'Hajw Agor', hint: 'Jwmbaigra border: herringbone hills, eye medallions and field butis', roles: [[0, 'Base'], [1, 'Hills'], [2, 'Lines'], [3, 'Medallions'], [4, 'Butis']], outline: 'Field butis', rotate: 'transpose', defaults: { repeat: 10, aspect: 4.8, weight: 60, outline: true } },
   { id: 'dingkhia', name: 'Dingkhia Bijou', hint: 'Jwmbaigra: round rosette band, fern fronds and rosettes in the field', roles: [[0, 'Base'], [1, 'Rosettes'], [2, 'Lines'], [3, 'Ferns'], [4, 'Centres']], outline: 'Field rosettes', rotate: 'transpose', defaults: { repeat: 6, aspect: 4.33, weight: 60, outline: true } },
   { id: 'khangkri', name: 'Khangkrikhola', hint: 'Teasel-gourd flower chains between dash and dot rows', roles: [[0, 'Base'], [1, 'Chains'], [2, 'Dashes'], [3, 'Diamonds'], [4, 'Dots']], rotate: 'transpose', defaults: { repeat: 6, aspect: 0.75, weight: 60 } },
+  { id: 'aronaileaf', name: 'Aronai Hajw Leaf', hint: 'Woven aronai section: pointed leaves growing from one side of a narrow diamond-chain band, plain cloth beyond', roles: [[0, 'Base'], [1, 'Leaves'], [2, 'Band & borders'], [3, 'Green details'], [4, 'Centres']], outline: 'Leaves on both sides', rotate: 'transpose', defaults: { repeat: 1, aspect: 0.514, weight: 50, outline: false } },
   { id: 'wave', name: 'Waves', hint: 'Wavy ribbons', roles: [[0, 'Base'], [1, 'Wave'], [2, 'Pinline']], outline: 'Pinline', rotate: 'transpose', defaults: { repeat: 4, aspect: 0.5, weight: 45 } },
 ];
 export const GEO_MAP = Object.fromEntries(GEO_STYLES.map((s) => [s.id, s])) as Record<GeoStyle, GeoStyleMeta>;
@@ -695,6 +697,22 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
       fill(B['#'], 1); fill(B['+'], 2); fill(B.o, 3); fill(B['*'], 4);
       break;
     }
+    case 'aronaileaf': {
+      // Aronai Hajw leaf: woven section with pointed leaves on one side of a narrow band
+      const grid = aronaiLeafGrid(!!g.outline, wt);
+      const G = LEAF_G, R = LEAF_R, ux = cw / G, uy = ch / R, bl = 0.04;
+      const map = runs((x, y) => grid[y][x], 0, 0, G, R);
+      const B: Record<string, PathBuilder> = { '#': pb(), '+': pb(), o: pb(), '*': pb() };
+      each((x0, y0) => {
+        for (const [kk, list] of map) for (const [x, y, l] of list) {
+          const X0 = x0 + x * ux, Y0 = y0 + y * uy, w = l * ux + ux * bl, h = uy * (1 + bl);
+          if (X0 + offx > BW || X0 + w + offx < 0 || Y0 + offy > BH || Y0 + h + offy < 0) continue;
+          B[kk].rect(X0, Y0, w, h);
+        }
+      });
+      fill(B['#'], 1); fill(B['+'], 2); fill(B.o, 3); fill(B['*'], 4);
+      break;
+    }
     case 'aztec': {
       const mn = pb(), ar = pb(), ac = pb(), cut = pb();
       const k = 0.55 + wt * 0.45;
@@ -828,7 +846,7 @@ export function geoAnchors(g: GeoSettings, W: number, H: number): { pts: [number
   const at: Record<string, [number, number][]> = {
     ogee: g.outline ? [[0.5, 0]] : [[0, 0.5]], ikat: [[0, 0]], check: [[wt / 2, wt / 2]], stripes: [[wt + (1 - wt) / 2, 0.5]],
     pinstripe: [[wt / 2, 0.5]], gingham: [[wt + (1 - wt) / 2, wt + (1 - wt) / 2]], plaid: [[wt * 0.3, wt * 0.3]],
-    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], aztec: [[0, 0.5]], aronai: [[0.5, 0.5]], gubwi: [[0.5, 0.72]], makhri: [[0.5, 0.5]], hajw: [[0.5, 0.83]], dingkhia: [[0.5, 0.62]], khangkri: [[0.5, 0.82]], aronaiweave: [[0.5, 0.5]], agor: [[0.5, Math.min(0.95, (25 * Math.min(cw / 24, ch / 27) + (ch - 25 * Math.min(cw / 24, ch / 27)) / 2) / ch)]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
+    dots: [[0.75, 0.25], [0.25, 0.75]], bandhani: [[0.5, 0]], bands: [[0.5, 0.6]], aztec: [[0, 0.5]], aronai: [[0.5, 0.5]], aronaileaf: [[0.85, 0.5]], gubwi: [[0.5, 0.72]], makhri: [[0.5, 0.5]], hajw: [[0.5, 0.83]], dingkhia: [[0.5, 0.62]], khangkri: [[0.5, 0.82]], aronaiweave: [[0.5, 0.5]], agor: [[0.5, Math.min(0.95, (25 * Math.min(cw / 24, ch / 27) + (ch - 25 * Math.min(cw / 24, ch / 27)) / 2) / ch)]], harlequin: [[0.5, 0.5]], argyle: [[0.5, 0.5]],
   };
   const fr = at[g.style] ?? [[0.5, 0.5]];
   const pts: [number, number][] = [];

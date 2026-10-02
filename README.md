@@ -37,6 +37,8 @@ A seamless pattern generator built with React, TypeScript, Vite, Tailwind CSS an
     herringbone lines, sunburst medallions with paisleys and arrow-leaf stars) and a woven
     *Aronai Weave* style (serrated net-filled teeth and a chain of rosette diamonds); 3 motifs
     (sunburst, paisley, arrows), 2 palettes (Aronai Orange, Aronai Yellow) and 6 presets.
+  - **Aronai Hajw Leaf** base style: woven pointed hajw leaves projecting from a narrow
+    diamond-chain band with green flowers; toggle *Leaves on both sides*, Weight sets leaf length; 3 presets.
   - **Agor library upgrade** (names and meanings from *An Introduction to the Bodo Agor*,
     Narzary & Boro 2024, and Balipara Foundation textile notes; drawings are original):
     12 new woven motifs — Dingkhia (fern), Gabsab (round flower), Khangkrikhola (teasel-gourd

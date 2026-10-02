@@ -308,6 +308,26 @@ PRESETS.push(
     settings: { category: 'bodo', motifs: ['daoAgor', 'khamrenga', 'sanAgor'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { daoAgor: [1, 2], khamrenga: [3, 2], sanAgor: [2, 1] }, rotationMode: '0', density: 50, scale: 90, variation: 0, seed: 8132 },
   }),
 );
+PRESETS.push(
+  BD({
+    id: 'ar-hajw-leaf', name: 'Aronai Hajw Leaf', description: 'Woven aronai: maroon pointed leaves on one side of a narrow band, plain yellow-orange cloth.',
+    palette: ['#EFA22A', '#7A1221', '#18432A', '#B0202C', '#F6E7C1'], background: solid('#EFA22A'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronaileaf', repeat: 1, aspect: 0.514, weight: 50, colors: [-1, 1, 1, 2, 3], outline: false },
+    texture: { type: 'linen', amount: 30 },
+  }),
+  BD({
+    id: 'ar-hajw-leaf-yellow', name: 'Aronai Leaf Yellow', description: 'Red leaves on both sides of the band on bright yellow.',
+    palette: ['#F6E31A', '#D62012', '#B3121F', '#7A1221', '#FFFFFF'], background: solid('#F6E31A'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronaileaf', repeat: 1, aspect: 0.514, weight: 50, colors: [-1, 1, 1, 2, 3], outline: true },
+    texture: { type: 'linen', amount: 25 },
+  }),
+  BD({
+    id: 'ar-hajw-leaf-green', name: 'Aronai Leaf Green', description: 'Dark green leaves on both sides of the band on orange.',
+    palette: ['#F07A12', '#0B5D2A', '#111111', '#C1121F', '#F2C230'], background: solid('#F07A12'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronaileaf', repeat: 1, aspect: 0.514, weight: 50, colors: [-1, 1, 1, 2, 3], outline: true },
+    texture: { type: 'linen', amount: 25 },
+  }),
+);
 const AR_ORANGE = ['#F07A12', '#0B5D2A', '#111111', '#C1121F', '#F2C230'];
 const AR_YELLOW = ['#F6E31A', '#D62012', '#E8590C', '#111111', '#FFFFFF'];
 PRESETS.push(

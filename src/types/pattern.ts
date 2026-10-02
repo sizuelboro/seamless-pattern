@@ -67,7 +67,7 @@ export interface Background {
 export type GeoStyle =
   | 'stripes' | 'pinstripe' | 'diagonal' | 'check' | 'gingham' | 'plaid'
   | 'harlequin' | 'argyle' | 'chevron' | 'scallop' | 'dots' | 'wave'
-  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands' | 'aztec' | 'agor' | 'aronai' | 'aronaiweave' | 'gubwi' | 'makhri' | 'hajw' | 'dingkhia' | 'khangkri';
+  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands' | 'aztec' | 'agor' | 'aronai' | 'aronaiweave' | 'gubwi' | 'makhri' | 'hajw' | 'dingkhia' | 'khangkri' | 'aronaileaf';
 export type GeoAccent = 'none' | 'dot' | 'sparkle' | 'star' | 'diamond' | 'flower';
 
 /** Geometric base layer, drawn between the background and the motifs. */
