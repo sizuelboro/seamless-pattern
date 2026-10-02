@@ -287,6 +287,31 @@ PRESETS.push(
     settings: { ...geoOnly }, geo: { style: 'hajw', repeat: 4, aspect: 5, weight: 60, colors: [-1, 1, 1, 1, 4, 2], outline: true },
   }),
   BD({
+    id: 'bd-hajw-rosette', name: 'Hajw Rosette', description: 'Big sun rosettes between jaali-netted hills, orange on royal blue.',
+    palette: ['#2430A0', '#F0A040', '#FFE3B0', '#C2410C', '#FFFFFF'], background: solid('#2430A0'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'hajw', repeat: 4, aspect: 5, weight: 60, colors: [-1, 1, 1, 1, 2, 3], outline: true, centre: 'rosette', hills: 'jaali' },
+  }),
+  BD({
+    id: 'bd-hajw-oval', name: 'Hajw Oval', description: 'Oval rosette medallions with bold leaf hills, dark green on aronai orange.',
+    palette: ['#EF8A1E', '#1F4D2B', '#C0392B', '#FFD27A', '#7A1F1F'], background: solid('#EF8A1E'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'hajw', repeat: 4, aspect: 5, weight: 60, colors: [-1, 1, 1, 1, 4, 2], outline: true, centre: 'oval', hills: 'leaf' },
+  }),
+  BD({
+    id: 'bd-hajw-diamond', name: 'Hajw Diamond Chain', description: 'Linked flower diamonds with herringbone hills, white on red.',
+    palette: ['#C8102E', '#FFF4E6', '#1E2A78', '#F6C343', '#FFFFFF'], background: solid('#C8102E'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'hajw', repeat: 4, aspect: 5, weight: 60, colors: [-1, 1, 1, 1, 3, 2], outline: true, centre: 'diamonds', hills: 'herringbone' },
+  }),
+  BD({
+    id: 'bd-hajw-zigzag', name: 'Hajw Zigzag', description: 'Crossing zigzag lenses with dotted hills, green on yellow.',
+    palette: ['#F2C230', '#14532D', '#B91C1C', '#FFF7D6', '#7C2D12'], background: solid('#F2C230'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'hajw', repeat: 4, aspect: 5, weight: 60, colors: [-1, 1, 1, 1, 2, 2], outline: true, centre: 'zigzag', hills: 'dotted' },
+  }),
+  BD({
+    id: 'bd-hajw-jaali', name: 'Hajw Jaali', description: 'Netted diamonds between dashed lines, jaali hills, gold on maroon.',
+    palette: ['#7A1030', '#E8B923', '#FFFFFF', '#F06292', '#2B2FA8'], background: solid('#7A1030'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'hajw', repeat: 4, aspect: 5, weight: 60, colors: [-1, 1, 1, 1, 2, 4], outline: true, centre: 'jaali', hills: 'jaali' },
+  }),
+  BD({
     id: 'bd-dingkhia-bijou', name: 'Dingkhia Bijou', description: 'Gold fern fronds and round rosettes on jwmbaigra pink.',
     palette: ['#D3195A', '#E9C23A', '#F4D35E', '#7A0C2E', '#FFFFFF'], background: solid('#D3195A'), showMotifs: false,
     settings: { ...geoOnly }, geo: { style: 'dingkhia', repeat: 6, aspect: 4.33, weight: 30, colors: [-1, 1, 1, 1, 2], outline: true },
@@ -306,6 +331,26 @@ PRESETS.push(
     id: 'bd-dao-birds', name: 'Dao Agor Birds', description: 'Woven birds with starfruit and sun agors on pink.',
     palette: ['#E0245E', '#3B2FC9', '#F2C230', '#FFFFFF', '#1B1B1B'], background: solid('#E0245E'), showMotifs: true,
     settings: { category: 'bodo', motifs: ['daoAgor', 'khamrenga', 'sanAgor'], layout: 'halfdrop', colorMode: 'byMotif', motifColors: { daoAgor: [1, 2], khamrenga: [3, 2], sanAgor: [2, 1] }, rotationMode: '0', density: 50, scale: 90, variation: 0, seed: 8132 },
+  }),
+);
+PRESETS.push(
+  BD({
+    id: 'ar-hajw-leaf', name: 'Aronai Hajw Leaf', description: 'Woven aronai: maroon pointed leaves on one side of a narrow band, plain yellow-orange cloth.',
+    palette: ['#EFA22A', '#7A1221', '#18432A', '#B0202C', '#F6E7C1'], background: solid('#EFA22A'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronaileaf', repeat: 1, aspect: 0.514, weight: 50, colors: [-1, 1, 1, 2, 3], outline: false },
+    texture: { type: 'linen', amount: 30 },
+  }),
+  BD({
+    id: 'ar-hajw-leaf-yellow', name: 'Aronai Leaf Yellow', description: 'Red leaves on both sides of the band on bright yellow.',
+    palette: ['#F6E31A', '#D62012', '#B3121F', '#7A1221', '#FFFFFF'], background: solid('#F6E31A'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronaileaf', repeat: 1, aspect: 0.514, weight: 50, colors: [-1, 1, 1, 2, 3], outline: true },
+    texture: { type: 'linen', amount: 25 },
+  }),
+  BD({
+    id: 'ar-hajw-leaf-green', name: 'Aronai Leaf Green', description: 'Dark green leaves on both sides of the band on orange.',
+    palette: ['#F07A12', '#0B5D2A', '#111111', '#C1121F', '#F2C230'], background: solid('#F07A12'), showMotifs: false,
+    settings: { ...geoOnly }, geo: { style: 'aronaileaf', repeat: 1, aspect: 0.514, weight: 50, colors: [-1, 1, 1, 2, 3], outline: true },
+    texture: { type: 'linen', amount: 25 },
   }),
 );
 const AR_ORANGE = ['#F07A12', '#0B5D2A', '#111111', '#C1121F', '#F2C230'];

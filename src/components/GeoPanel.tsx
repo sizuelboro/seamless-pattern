@@ -46,6 +46,14 @@ function SlotPicker({ label, value, palette, allowBg, bg, onChange }: { label: s
   );
 }
 
+const HAJW_CENTRES = [
+  { id: 'eye', label: 'Eye' }, { id: 'rosette', label: 'Rosette' }, { id: 'oval', label: 'Oval' },
+  { id: 'diamonds', label: 'Diamonds' }, { id: 'zigzag', label: 'Zigzag' }, { id: 'jaali', label: 'Jaali' },
+] as const;
+const HAJW_HILLS = [
+  { id: 'herringbone', label: 'Herringbone' }, { id: 'jaali', label: 'Jaali net' }, { id: 'leaf', label: 'Bold leaf' }, { id: 'dotted', label: 'Dotted' },
+] as const;
+
 export const GeoPanel = memo(function GeoPanel({ state, actions }: { state: PatternState; actions: PatternActions }) {
   const g = state.geo ?? DEFAULT_GEO;
   const meta = GEO_MAP[g.style];
@@ -115,6 +123,23 @@ export const GeoPanel = memo(function GeoPanel({ state, actions }: { state: Patt
           )}
         </div>
       )}
+
+      {g.style === 'hajw' && ([
+        ['Centre design', 'centre', HAJW_CENTRES, g.centre ?? 'eye'],
+        ['Hill design', 'hills', HAJW_HILLS, g.hills ?? 'herringbone'],
+      ] as const).map(([title, key, opts, cur]) => (
+        <div key={key}>
+          <div className="mb-1.5 text-[13px] font-medium text-ink-700 dark:text-ink-200">{title}</div>
+          <div role="radiogroup" aria-label={title} className="grid grid-cols-3 gap-1">
+            {opts.map((o) => (
+              <button key={o.id} type="button" role="radio" aria-checked={cur === o.id} onClick={() => set({ [key]: o.id })}
+                className={cx('h-7 rounded-md text-[10px] font-medium transition', cur === o.id ? 'bg-ink-900 text-white dark:bg-white dark:text-ink-900' : 'bg-ink-100 text-ink-600 hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-300')}>
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
 
       {meta.accent && (
         <div>

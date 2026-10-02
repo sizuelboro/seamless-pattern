@@ -62,6 +62,7 @@ export function randomGeo(paletteSize: number, avoid?: GeoStyle): GeoSettings {
     accent: meta.accent && rng.chance(0.45) ? rng.pick(GEO_ACCENTS.filter((a) => a.id !== 'none')).id : 'none',
     rotate: !!meta.rotate && rng.chance(0.3),
     outline: !!GEO_MAP[meta.id].outline && rng.chance(0.45),
+    ...(meta.id === 'hajw' ? { centre: rng.pick(['eye', 'rosette', 'oval', 'diamonds', 'zigzag', 'jaali'] as const), hills: rng.pick(['herringbone', 'jaali', 'leaf', 'dotted'] as const) } : {}),
   };
 }
 

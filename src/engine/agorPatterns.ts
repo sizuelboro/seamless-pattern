@@ -175,42 +175,109 @@ export function coin(dx: number, dy: number, R: number): Key {
  * centre, side dots) linked by barred connectors, then the mirror image below. '~' = divider stripe.
  */
 const hajwHW = (r: number) => 2 + Math.round((Math.max(r, 0) * 7) / 16);
-const medOut = [15, 15, 15, 15, 13, 13, 11, 11, 8, 8, 6, 6];
-const medIn = [12, 12, 12, 12, 10, 10, 7, 7, 4, 4, -1, -1];
-export function hajwSadri(x: number, y: number, divider: boolean, sp: number): string | null {
+export type HajwCentre = 'eye' | 'rosette' | 'diamonds' | 'oval' | 'zigzag' | 'jaali';
+export type HajwHills = 'herringbone' | 'jaali' | 'leaf' | 'dotted';
+
+/** Middle chain of the hajw sadri: one 40-thread repeat, dy in −11 … 11 (row 49 = 0). */
+function hajwCentre(x: number, dy: number, kind: HajwCentre): string | null {
+  const A = Math.abs, ay = A(dy);
+  if (ay > 11) return null;
+  const mx = x - 20, am = A(mx);
+  switch (kind) {
+    case 'rosette': {
+      // big round sun flowers with small flower diamonds between them
+      if (am <= 12) { const k = rosette(mx, dy, 11); return k === '*' ? '*' : k ? 'o' : null; }
+      const cx = A(x < 20 ? x : x - 40), d = cx + ay;
+      if (d === 0) return '*';
+      if (d === 2 || (d === 4 && (cx === 0 || ay === 0))) return 'o';
+      return null;
+    }
+    case 'diamonds': {
+      // linked stepped diamonds (two per repeat), each with a four-petal flower inside
+      const lx = ((x + 10) % 20) - 10, al = A(lx), d = al + ay;
+      if (d === 11 || d === 10) return 'o';
+      if (d === 0) return '*';
+      if (d === 2 || (al === 0 && ay === 4) || (ay === 0 && al === 4) || dd(al - 3, ay - 3) === 0) return 'o';
+      if (d > 11 && ay === 0) return 'o';
+      return null;
+    }
+    case 'oval': {
+      // oval medallion: outer ring, petal ring and a rosette eye; dotted link between ovals
+      const e = Math.hypot(mx / 15, dy / 11.5);
+      if (e > 0.88 && e <= 1.0) return 'o';
+      if (e > 0.62 && e <= 0.8) { const f = ((Math.atan2(dy, mx) / (Math.PI * 2)) * 16 + 16) % 1; return f < 0.55 ? 'o' : null; }
+      if (e <= 0.5) { const k = rosette(mx, dy, 5); return k === '*' ? '*' : k ? 'o' : null; }
+      if (e > 1.0 && ay === 0) return x % 2 === 0 ? 'o' : null;
+      if (e > 1.0 && ay === 6) { const cx = A(x < 20 ? x : x - 40); return cx <= 1 ? 'o' : null; }
+      return null;
+    }
+    case 'zigzag': {
+      // two zigzags crossing into a chain of lenses, a flower in every lens
+      const ph = ((x % 20) + 20) % 20, z = (ph < 10 ? ph : 20 - ph) - 5; // −5 … 5
+      const zy = Math.round(z * 2);
+      if (A(dy - zy) <= 1 || A(dy + zy) <= 1) return 'o';
+      if (ay === 11) return 'o';
+      const lx = ((x + 10) % 20) - 10, d = A(lx) + ay;
+      if (A(lx) >= 6) return null;
+      if (d === 0) return '*';
+      if (d === 2 || (lx === 0 && ay === 4)) return 'o';
+      return null;
+    }
+    case 'jaali': {
+      // net of small diamonds between dashed lines, big netted diamonds in the middle
+      if (ay === 11) return x % 2 === 0 ? 'o' : null;
+      if (ay === 10) return null;
+      const lx = ((x + 10) % 20) - 10, d = A(lx) + ay;
+      if (d === 9) return 'o';
+      if (d < 9) return d === 0 ? '*' : (lx + dy) % 2 === 0 ? 'o' : null;
+      if (ay <= 2 && d > 9) return (x + dy) % 2 === 0 ? 'o' : null;
+      return null;
+    }
+    default: {
+      // eye medallion: stepped outline, diamond ring with a red centre, side dots, barred link
+      const medOut = [15, 15, 15, 15, 13, 13, 11, 11, 8, 8, 6, 6];
+      const medIn = [12, 12, 12, 12, 10, 10, 7, 7, 4, 4, -1, -1];
+      if (am <= medOut[ay] && am > medIn[ay]) return 'o';
+      if (am > 15) {
+        const cx = A(x < 20 ? x : x - 40);
+        if (ay <= 2) return 'o';
+        if (ay <= 4 && cx <= 1 && (cx === 0 || ay === 3)) return 'o';
+        return null;
+      }
+      const d = am + ay;
+      if (d <= 1) return '*';
+      if (d === 3 || (ay === 0 && am === 5) || (am === 0 && ay === 5)) return 'o';
+      if (ay === 0 && (am === 8 || am === 9)) return 'o';
+      return null;
+    }
+  }
+}
+
+/** One hill body row: r = 0 … 16 from the tip end, dx from the hill centre. */
+function hajwHill(dx: number, r: number, sp: number, kind: HajwHills): boolean {
+  const A = Math.abs, hw = hajwHW(r), a = A(dx);
+  if (a > hw) return false;
+  if (a >= hajwHW(r - 1) || a === hw) return true; // stepped outline
+  switch (kind) {
+    case 'jaali': return (r + dx + 40) % 4 === 0 || (r - dx + 40) % 4 === 0;
+    case 'leaf': { if (dx === 0) return false; const k = r - a; return !(k > 0 && k % sp === 1); }
+    case 'dotted': return dx === 0 || (dx + r) % 2 === 0;
+    default: { if (dx === 0) return true; const k = r - a; return k > 0 && k % sp === 0; }
+  }
+}
+
+export function hajwSadri(x: number, y: number, divider: boolean, sp: number, centre: HajwCentre = 'eye', hills: HajwHills = 'herringbone'): string | null {
   const A = Math.abs;
+  if (y >= 38 && y <= 60) return hajwCentre(x, y - 49, centre);
   if (y > 49) y = 98 - y;
   if (y < 0) return null;
   const dx = ((x + 10) % 20) - 10; // hills centred at x = 10 and 30
   if (y >= 4 && y <= 6) return dx === 0 ? '#' : null;
   if (y >= 7 && y <= 10) return A(dx) <= 1 ? '#' : null;
-  if (y >= 11 && y <= 27) {
-    const r = y - 11, hw = hajwHW(r), a = A(dx);
-    if (a > hw) return null;
-    if (a >= hajwHW(r - 1) || a === hw || dx === 0) return '#';
-    const k = r - a;
-    return k > 0 && k % sp === 0 ? '#' : null;
-  }
+  if (y >= 11 && y <= 27) return hajwHill(dx, y - 11, sp, hills) ? '#' : null;
   if (y === 28) return A(dx) <= 9 ? '#' : null;
   if (y === 30) return x % 2 === 1 ? '+' : null;
   if (y === 31) return '+';
   if (y === 33 || y === 34) return divider ? '~' : null;
-  if (y >= 38) {
-    const mx = x - 20, dy = y - 49, ay = A(dy), am = A(mx);
-    if (ay > 11) return null;
-    if (am <= medOut[ay] && am > medIn[ay]) return 'o';
-    if (am > 15) {
-      // connector between medallions (x = 0 / 40): solid bar with a barred bump in the middle
-      const cx = A(x < 20 ? x : x - 40);
-      if (ay <= 2) return 'o';
-      if (ay <= 4 && cx <= 1 && (cx === 0 || ay === 3)) return 'o';
-      return null;
-    }
-    const d = am + ay;
-    if (d <= 1) return '*';
-    if (d === 3 || (ay === 0 && am === 5) || (am === 0 && ay === 5)) return 'o';
-    if (ay <= 0 && (am === 8 || am === 9)) return 'o';
-    return null;
-  }
   return null;
 }

@@ -39,6 +39,9 @@ A seamless pattern generator built with React, TypeScript, Vite, Tailwind CSS an
     (sunburst, paisley, arrows), 2 palettes (Aronai Orange, Aronai Yellow) and 6 presets.
   - **Aronai Hajw Leaf** base style: woven pointed hajw leaves projecting from a narrow
     diamond-chain band with green flowers; toggle *Leaves on both sides*, Weight sets leaf length; 3 presets.
+  - **Hajw Agor** sadri: one band per tile (hills up, centred chain, hills down). Pick a *Centre design*
+    (Eye, Rosette, Oval, Diamonds, Zigzag, Jaali) and a *Hill design* (Herringbone, Jaali net, Bold leaf,
+    Dotted); 5 extra presets.
   - **Agor library upgrade** (names and meanings from *An Introduction to the Bodo Agor*,
     Narzary & Boro 2024, and Balipara Foundation textile notes; drawings are original):
     12 new woven motifs — Dingkhia (fern), Gabsab (round flower), Khangkrikhola (teasel-gourd

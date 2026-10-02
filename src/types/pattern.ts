@@ -1,3 +1,4 @@
+import type { HajwCentre, HajwHills } from '../engine/agorPatterns';
 export type LayoutMode =
   | 'random' | 'grid' | 'brick' | 'hex' | 'halfdrop'
   | 'mirror' | 'radial' | 'tossed' | 'stripe' | 'checker' | 'cells' | 'vine' | 'damask';
@@ -67,7 +68,7 @@ export interface Background {
 export type GeoStyle =
   | 'stripes' | 'pinstripe' | 'diagonal' | 'check' | 'gingham' | 'plaid'
   | 'harlequin' | 'argyle' | 'chevron' | 'scallop' | 'dots' | 'wave'
-  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands' | 'aztec' | 'agor' | 'aronai' | 'aronaiweave' | 'gubwi' | 'makhri' | 'hajw' | 'dingkhia' | 'khangkri';
+  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands' | 'aztec' | 'agor' | 'aronai' | 'aronaiweave' | 'gubwi' | 'makhri' | 'hajw' | 'dingkhia' | 'khangkri' | 'aronaileaf';
 export type GeoAccent = 'none' | 'dot' | 'sparkle' | 'star' | 'diamond' | 'flower';
 
 /** Geometric base layer, drawn between the background and the motifs. */
@@ -87,6 +88,9 @@ export interface GeoSettings {
   accent: GeoAccent;
   rotate: boolean;
   outline: boolean;
+  /** Hajw agor: design of the middle chain and of the hills. */
+  centre?: HajwCentre;
+  hills?: HajwHills;
 }
 
 export interface PatternState {
