@@ -670,12 +670,12 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
       // Hajw: one band per tile, its height set by Cell ratio (band height = cell width × ratio), rest plain.
       const ux = cw / G, uy = g.style === 'hajw' ? Math.min(ch, cw * clamp(g.aspect, 0.5, 10)) / R : ch / R, bl = 0.04;
       const map = runs(lit, 0, 0, G, R);
-      // Hajw: upper hills at the top, the medallion chain (with its divider) centred, the lower border at the bottom.
+      // Hajw: upper hills at the top, divider stays under them, the medallion chain centred, the lower border at the bottom.
       const lowAt = g.style === 'hajw' ? 62 : 0;
       const B: Record<string, PathBuilder> = { '#': pb(), '+': pb(), o: pb(), '*': pb(), '~': pb() };
       each((x0, y0) => {
         for (const [kk, list] of map) for (const [x, y, l] of list) {
-          const X0 = x0 + x * ux, Y0 = y0 + (lowAt && y >= lowAt ? ch - (R - y) * uy : lowAt && y >= 32 ? ch / 2 + (y - 49.5) * uy : y * uy), w = l * ux + ux * bl, h = uy * (1 + bl);
+          const X0 = x0 + x * ux, Y0 = y0 + (lowAt && y >= lowAt ? ch - (R - y) * uy : lowAt && y >= 35 ? ch / 2 + (y - 49.5) * uy : y * uy), w = l * ux + ux * bl, h = uy * (1 + bl);
           if (X0 + offx > BW || X0 + w + offx < 0 || Y0 + offy > BH || Y0 + h + offy < 0) continue;
           B[kk].rect(X0, Y0, w, h);
         }
