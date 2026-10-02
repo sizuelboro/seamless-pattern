@@ -651,8 +651,12 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
           if (y === 25) return x % 2 === 0 ? '+' : null;
           if (y >= 28 && y <= 41) { const f = fern(x < 12 ? x - 6 : x - 18, y - 28, 14, 4); return f ? 'o' : null; }
           if (g.outline) {
-            if (y >= 55 && y <= 73) return rosette(x - 12, y - 64, 9);
-            if (y >= 81 && y <= 99 && heavy) return rosette(wrap(x), y - 90, 9);
+            // field rosettes spaced evenly between the fern row (ends at 41) and the next band (104)
+            if (!heavy) { if (y >= 64 && y <= 82) return rosette(x - 12, y - 73, 9); }
+            else {
+              if (y >= 53 && y <= 71) return rosette(x - 12, y - 62, 9);
+              if (y >= 75 && y <= 93) return rosette(wrap(x), y - 84, 9);
+            }
           }
           return null;
         };
