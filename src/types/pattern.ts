@@ -67,11 +67,13 @@ export interface Background {
 export type GeoStyle =
   | 'stripes' | 'pinstripe' | 'diagonal' | 'check' | 'gingham' | 'plaid'
   | 'harlequin' | 'argyle' | 'chevron' | 'scallop' | 'dots' | 'wave'
-  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands' | 'aztec' | 'agor' | 'aronai' | 'aronaiweave' | 'gubwi' | 'makhri' | 'hajw' | 'dingkhia' | 'khangkri' | 'aronaileaf';
+  | 'ogee' | 'jali' | 'bandhani' | 'ikat' | 'bands' | 'aztec' | 'agor' | 'aronai' | 'aronaiweave' | 'gubwi' | 'makhri' | 'hajw' | 'dingkhia' | 'khangkri';
 export type GeoAccent = 'none' | 'dot' | 'sparkle' | 'star' | 'diamond' | 'flower';
 
 /** Geometric base layer, drawn between the background and the motifs. */
 export interface GeoSettings {
+  /** Internal: force the row count (used when rendering a 3×3 super-tile). */
+  rowsOverride?: number;
   enabled: boolean;
   style: GeoStyle;
   /** Cells across the tile (integer, so the layer always repeats with the tile). */

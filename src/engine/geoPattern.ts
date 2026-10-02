@@ -52,7 +52,7 @@ export const GEO_STYLES: GeoStyleMeta[] = [
   { id: 'aronaiweave', name: 'Aronai Weave', hint: 'Woven aronai: serrated net teeth and a chain of rosette diamonds', roles: [[0, 'Base'], [1, 'Hajw teeth'], [2, 'Lines'], [3, 'Diamond chain'], [4, 'Rosettes']], outline: 'Rosettes', rotate: 'transpose', defaults: { repeat: 2, aspect: 1, weight: 60, outline: true } },
   { id: 'gubwi', name: 'Agor Gubwi', hint: 'Dokhona stripes: orange bands, green zigzags round a purple dash row, dotted lines', roles: [[0, 'Base'], [1, 'Bands'], [2, 'Zigzag'], [3, 'Dashes'], [4, 'Dots']], outline: 'Zigzag bands', rotate: 'transpose', defaults: { repeat: 8, aspect: 2.5, weight: 60, outline: true } },
   { id: 'makhri', name: 'Makhri Agor', hint: 'Spider agor: bands of linked floral diamonds, one colour per band', roles: [[0, 'Base'], [1, 'Colour A'], [2, 'Colour B'], [3, 'Colour C'], [4, 'Dots & centres']], rotate: 'transpose', defaults: { repeat: 16, aspect: 4.8, weight: 60 } },
-  { id: 'hajw', name: 'Hajw Agor', hint: 'Jwmbaigra sadri: herringbone hills up and down round a chain of eye medallions', roles: [[0, 'Base'], [1, 'Hills'], [2, 'Lines'], [3, 'Medallions'], [5, 'Centres'], [4, 'Divider stripes']], outline: 'Divider stripes', rotate: 'transpose', defaults: { repeat: 5, aspect: 2.5, weight: 60, outline: true } },
+  { id: 'hajw', name: 'Hajw Agor', hint: 'Jwmbaigra sadri: herringbone hills up and down round a chain of eye medallions', roles: [[0, 'Base'], [1, 'Hills'], [2, 'Lines'], [3, 'Medallions'], [5, 'Centres'], [4, 'Divider stripes']], outline: 'Divider stripes', rotate: 'transpose', defaults: { repeat: 10, aspect: 5, weight: 60, outline: true } },
   { id: 'dingkhia', name: 'Dingkhia Bijou', hint: 'Jwmbaigra: round rosette band, fern fronds and rosettes in the field', roles: [[0, 'Base'], [1, 'Rosettes'], [2, 'Lines'], [3, 'Ferns'], [4, 'Centres']], outline: 'Field rosettes', rotate: 'transpose', defaults: { repeat: 6, aspect: 4.33, weight: 60, outline: true } },
   { id: 'khangkri', name: 'Khangkrikhola', hint: 'Teasel-gourd flower chains between dash and dot rows', roles: [[0, 'Base'], [1, 'Chains'], [2, 'Dashes'], [3, 'Diamonds'], [4, 'Dots']], rotate: 'transpose', defaults: { repeat: 6, aspect: 0.75, weight: 60 } },
   { id: 'wave', name: 'Waves', hint: 'Wavy ribbons', roles: [[0, 'Base'], [1, 'Wave'], [2, 'Pinline']], outline: 'Pinline', rotate: 'transpose', defaults: { repeat: 4, aspect: 0.5, weight: 45 } },
@@ -83,7 +83,8 @@ export function geoGrid(g: GeoSettings, W: number, H: number) {
   const BW = mode === 'transpose' ? H : W, BH = mode === 'transpose' ? W : H;
   const cols = clamp(Math.round(g.repeat), 1, 64);
   const cw = BW / cols;
-  const rows = clamp(Math.round(BH / (cw * clamp(g.aspect, 0.2, 8))), 1, 128);
+  // Hajw agor is a single sadri band: exactly one band fills the tile height.
+  const rows = g.rowsOverride ? g.rowsOverride : g.style === 'hajw' ? 1 : clamp(Math.round(BH / (cw * clamp(g.aspect, 0.2, 8))), 1, 128);
   return { mode, BW, BH, cols, rows, cw, ch: BH / rows };
 }
 
@@ -666,7 +667,8 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
           return null;
         };
       }
-      const ux = cw / G, uy = ch / R, bl = 0.04;
+      // Hajw: one band per tile, its height set by Cell ratio (band height = cell width × ratio), rest plain.
+      const ux = cw / G, uy = g.style === 'hajw' ? Math.min(ch, cw * clamp(g.aspect, 0.5, 10)) / R : ch / R, bl = 0.04;
       const map = runs(lit, 0, 0, G, R);
       const B: Record<string, PathBuilder> = { '#': pb(), '+': pb(), o: pb(), '*': pb(), '~': pb() };
       each((x0, y0) => {

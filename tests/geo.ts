@@ -22,7 +22,7 @@ function bruteForce(state: PatternState, px: number, pxH: number): Uint8ClampedA
   const g = state.geo!;
   if (g.enabled) {
     const gr = geoGrid(g, W, H);
-    const big: GeoSettings = { ...g, repeat: gr.cols * 3, aspect: gr.ch / gr.cw };
+    const big: GeoSettings = { ...g, repeat: gr.cols * 3, aspect: g.style === 'hajw' ? g.aspect : gr.ch / gr.cw, rowsOverride: gr.rows * 3 };
     const bg = geoGrid(big, W * 3, H * 3);
     if (bg.rows !== gr.rows * 3) throw new Error('grid mismatch');
     drawGeoOps(ctx, buildGeo(big, state.palette, W * 3, H * 3));

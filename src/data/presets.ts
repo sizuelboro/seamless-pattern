@@ -284,7 +284,7 @@ PRESETS.push(
   BD({
     id: 'bd-hajw-jwmbaigra', name: 'Hajw Jwmbaigra', description: 'Gold herringbone hills up and down round a chain of eye medallions with red centres on royal blue.',
     palette: ['#2B2FA8', '#E8C21A', '#D6204E', '#F06292', '#FFFFFF'], background: solid('#2B2FA8'), showMotifs: false,
-    settings: { ...geoOnly }, geo: { style: 'hajw', repeat: 5, aspect: 2.5, weight: 60, colors: [-1, 1, 1, 1, 4, 2], outline: true },
+    settings: { ...geoOnly }, geo: { style: 'hajw', repeat: 10, aspect: 5, weight: 60, colors: [-1, 1, 1, 1, 4, 2], outline: true },
   }),
   BD({
     id: 'bd-dingkhia-bijou', name: 'Dingkhia Bijou', description: 'Gold fern fronds and round rosettes on jwmbaigra pink.',
