@@ -642,22 +642,19 @@ function buildGeoUncached(g: GeoSettings, palette: string[], W: number, H: numbe
         const sp = wt < 0.35 ? 4 : 3;
         lit = (x, y) => hajwSadri(x, y, !!g.outline, sp);
       } else if (g.style === 'dingkhia') {
-        // Dingkhia bijou: rosette band, fern fronds under a line, rosettes scattered in the field
+        // Dingkhia bijou, mirrored: rosette band (shared across the tile seam), dotted line, ferns hanging
+        // down, a centred row of field rosettes, ferns rising up, dotted line, then the next tile's band.
         G = 24; R = 104;
-        const wrap = (v: number) => ((v + 36) % 24) - 12;
         lit = (x, y) => {
           if (y <= 22) return rosette(x - 12, y - 11, 11);
-          if (y === 24 || y === 26) return '+';
-          if (y === 25) return x % 2 === 0 ? '+' : null;
-          if (y >= 28 && y <= 41) { const f = fern(x < 12 ? x - 6 : x - 18, y - 28, 14, 4); return f ? 'o' : null; }
-          if (g.outline) {
-            // field rosettes spaced evenly between the fern row (ends at 41) and the next band (104)
-            if (!heavy) { if (y >= 64 && y <= 82) return rosette(x - 12, y - 73, 9); }
-            else {
-              if (y >= 53 && y <= 71) return rosette(x - 12, y - 62, 9);
-              if (y >= 75 && y <= 93) return rosette(wrap(x), y - 84, 9);
-            }
+          const m = y > 63 ? 126 - y : y; // mirror about the field centre (row 63)
+          if (m === 24 || m === 26) return '+';
+          if (m === 25) return x % 2 === 0 ? '+' : null;
+          if (m >= 28 && m <= 41) {
+            const f = fern(x < 12 ? x - 6 : x - 18, m - 28, 14, 4);
+            return f ? 'o' : null;
           }
+          if (g.outline) { const r = heavy ? 11 : 9; if (A(y - 63) <= r) return rosette(x - 12, y - 63, r); }
           return null;
         };
       } else {
